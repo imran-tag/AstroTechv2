@@ -13,15 +13,15 @@
 
 /* Cercle */
 .timeline-circle {
-  position: absolute;
-  left: -15px; /* cercle centré sur la ligne */
-  top: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: #0dcaf0;
-  border: 10px solid white; /* pour le relief sur la ligne */
-  box-sizing: border-box;
+    position: absolute;
+    left: -8px;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: #0dcaf0;
+    /* border: 1px solid white; */
+    box-sizing: border-box;
 }
 
 /* Contenu */

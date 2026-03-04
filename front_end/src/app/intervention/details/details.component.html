@@ -1,361 +1,91 @@
 <div class="container mt-4" *ngIf="intervention">
-  <!-- ===== TITRE ET ACTIONS ===== -->
+  <!-- TITRE ET ACTIONS -->
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">
-      <strong>Détail de l'intervention</strong> — N° {{ intervention.numero }}
-    </h3>
-
+    <h3 class="mb-0"><strong>Détail de l'intervention</strong> — N° {{ intervention.numero || '—' }}</h3>
     <div class="btn-group" role="group">
       <button class="btn btn-outline-warning btn-sm" title="Modifier" (click)="editIntervention(intervention.id)">
         <i class="mdi mdi-pencil"></i>
       </button>
-
       <button class="btn btn-outline-danger btn-sm" title="Supprimer" (click)="deleteIntervention(intervention.id)">
         <i class="mdi mdi-delete"></i>
       </button>
     </div>
-
   </div>
 
   <div class="row g-4">
-
     <!-- ===== COLONNE GAUCHE ===== -->
     <div class="col-md-5">
-
       <!-- Card : Détails de l'intervention -->
       <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-white text-primary rounded-top">
           <h5 class="mb-0"><i class="fa fa-info-circle me-2"></i>Détails de l'intervention</h5>
         </div>
         <div class="card-body list-group list-group-flush">
-          <p class="list-group-item"><i class="fa fa-tag me-2 text-primary"></i><strong>Titre :</strong> {{
-            intervention.titre }}</p>
-          <p class="list-group-item"><i class="fa fa-list me-2 text-primary"></i><strong>Type :</strong> {{
-            intervention.type_intervention }}</p>
-          <p class="list-group-item"><i class="fa fa-exclamation-circle me-2 text-primary"></i><strong>Priorité
-              :</strong> {{ intervention.priorite || '—' }}</p>
-          <p class="list-group-item"><i class="fa fa-tasks me-2 text-primary"></i><strong>État :</strong>
-            {{ formatEtat(intervention.etat) }}
-          </p>
-          <p class="list-group-item"><i class="fa fa-calendar me-2 text-primary"></i><strong>Date de création :</strong>
-            {{ intervention.date_creation | date:'short' }}</p>
+          <p class="list-group-item"><strong>Titre :</strong> {{ intervention.titre || '—' }}</p>
+          <p class="list-group-item"><strong>Type :</strong> {{ intervention.type_intervention || '—' }}</p>
+          <p class="list-group-item"><strong>Priorité :</strong> {{ intervention.priorite || '—' }}</p>
+          <p class="list-group-item"><strong>État :</strong> {{ formatEtat(intervention.etat) }}</p>
+          <p class="list-group-item"><strong>Date création :</strong> {{ intervention.date_creation | date:'short' }}</p>
           <div class="list-group-item bg-light rounded mt-2">
             <strong>Description :</strong>
-            <p class="mb-0">{{ intervention.description }}</p>
+            <p class="mb-0">{{ intervention.description || '—' }}</p>
           </div>
         </div>
       </div>
-
-      <!-- Card : Client & Zone d'intervention -->
-      <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white text-success rounded-top">
-          <h5 class="mb-0">
-            <i class="fa fa-building me-2"></i>
-            Client & Zone d'intervention
-          </h5>
-        </div>
-
-        <div class="card-body">
-
-          <!-- CLIENT -->
-          <ul class="list-unstyled mb-3" *ngIf="intervention?.client">
-            <li>
-              <i class="fa fa-user me-2 text-success"></i>
-              <strong>Client :</strong>
-              {{ intervention.client.nom_client }}
-            </li>
-
-            <li>
-              <i class="fa fa-id-card me-2 text-success"></i>
-              <strong>Type :</strong>
-              {{ intervention.client.type_client }}
-            </li>
-
-            <li *ngIf="intervention.client?.adresse; else noClientAdresse">
-              <i class="fa fa-map-marker-alt me-2 text-success"></i>
-              <strong>Adresse :</strong>
-              {{ intervention.client.adresse.adresse }},
-              {{ intervention.client.adresse.code_postal }}
-              {{ intervention.client.adresse.ville }},
-              {{ intervention.client.adresse.province }},
-              {{ intervention.client.adresse.pays }}
-            </li>
-          </ul>
-
-          <ng-template #noClientAdresse>
-            <div class="text-muted fst-italic mb-3">
-              <i class="fa fa-map-marker-alt me-2"></i>
-              Adresse client non renseignée
-            </div>
-          </ng-template>
-
-          <hr *ngIf="intervention?.client && intervention?.zone_intervention?.data">
-
-          <!-- ZONE -->
-          <ul class="list-unstyled" *ngIf="intervention?.zone_intervention?.data">
-            <li>
-              <i class="fa fa-map me-2 text-success"></i>
-              <strong>Zone :</strong>
-              {{ intervention.zone_intervention.data.reference }}
-            </li>
-
-            <li *ngIf="intervention.zone_intervention.data?.adresse; else noZoneAdresse">
-              <i class="fa fa-map-marker-alt me-2 text-success"></i>
-              <strong>Adresse :</strong>
-              {{ intervention.zone_intervention.data.adresse.adresse }},
-              {{ intervention.zone_intervention.data.adresse.code_postal }}
-              {{ intervention.zone_intervention.data.adresse.ville }},
-              {{ intervention.zone_intervention.data.adresse.province }},
-              {{ intervention.zone_intervention.data.adresse.pays }}
-            </li>
-          </ul>
-
-          <ng-template #noZoneAdresse>
-            <div class="text-muted fst-italic">
-              <i class="fa fa-map-marker-alt me-2"></i>
-              Adresse de la zone non renseignée
-            </div>
-          </ng-template>
-
-        </div>
-      </div>
-
-
-      <!-- Card : Planning -->
-      <div class="card shadow-sm border-0 mb-4" *ngIf="intervention.plannings?.length">
-        <div class="card-header bg-white text-success rounded-top">
-          <h5 class="mb-0"><i class="fa fa-calendar me-2"></i>Planning</h5>
-        </div>
-        <div class="card-body">
-          <ul class="list-group list-group-flush">
-            <li *ngFor="let p of intervention.plannings" class="list-group-item">
-              <i class="fa fa-clock me-2 text-success"></i>{{ p.date | date:'shortDate' }} — {{ p.heure }}
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Card : Techniciens affectés -->
-      <div class="card shadow-sm border-0 mb-4" *ngIf="intervention.techniciens?.length">
-        <div class="card-header bg-white text-info rounded-top">
-          <h5 class="mb-0"><i class="fa fa-users me-2"></i>Techniciens affectés</h5>
-        </div>
-        <div class="card-body">
-          <ul class="list-group list-group-flush">
-            <li *ngFor="let tech of intervention.techniciens" class="list-group-item">
-              <i class="fa fa-user me-2 text-info"></i>{{ tech.nom }} {{ tech.prenom }}
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Card : Référents -->
-      <div class="card shadow-sm border-0 mb-4" *ngIf="intervention.referents?.length">
-        <div class="card-header bg-white text-warning rounded-top">
-          <h5 class="mb-0"><i class="fa fa-address-book me-2"></i>Référents</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-flex flex-column gap-2">
-            <div *ngFor="let ref of intervention.referents" class="p-2 bg-white rounded shadow-sm border">
-              <p class="mb-1"><strong>Nom :</strong> {{ ref.nom }} {{ ref.prenom }}</p>
-              <p class="mb-1"><strong>Email :</strong> <a href="mailto:{{ ref.email }}">{{ ref.email }}</a></p>
-              <p class="mb-0"><strong>Téléphone :</strong> {{ ref.telephone }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card : Équipe et Chef -->
-      <div class="card shadow-sm border-0 mb-4" *ngIf="intervention.equipe">
-        <div class="card-header bg-white text-primary rounded-top">
-          <h5 class="mb-0">
-            <i class="fa fa-users me-2 text-primary"></i>Équipe affectée
-          </h5>
-        </div>
-        <div class="card-body">
-
-          <!-- Équipe Nom / Description avec fond blanc -->
-          <div class="mb-3 p-3 rounded shadow-sm border bg-white">
-            <p class="mb-1"><strong>Nom :</strong> {{ intervention.equipe.nom }}</p>
-            <p *ngIf="intervention.equipe.description" class="mb-1">
-              <strong>Description :</strong> {{ intervention.equipe.description }}
-            </p>
-          </div>
-
-          <!-- Section Chef avec fond blanc -->
-          <div *ngIf="intervention.equipe.chef" class="mb-3 p-3 rounded border d-flex flex-column gap-1 bg-white">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fa fa-user-tie text-primary"></i>
-              <strong>Chef d’équipe :</strong> {{ intervention.equipe.chef.nom }} {{ intervention.equipe.chef.prenom }}
-            </div>
-            <div class="ms-4">
-              <p class="mb-1"><i class="fa fa-envelope me-1 text-primary"></i>Email : <a
-                  href="mailto:{{ intervention.equipe.chef.email }}">{{ intervention.equipe.chef.email }}</a></p>
-              <p class="mb-0"><i class="fa fa-phone me-1 text-primary"></i>Téléphone : {{
-                intervention.equipe.chef.telephone }}</p>
-            </div>
-          </div>
-
-          <!-- Section Techniciens -->
-          <div *ngIf="intervention.equipe.techniciens?.length" class="list-group">
-            <div *ngFor="let t of intervention.equipe.techniciens"
-              class="list-group-item d-flex justify-content-between align-items-center">
-              <span><i class="fa fa-user me-2 text-primary"></i>{{ t.nom }} {{ t.prenom }}</span>
-              <small *ngIf="t.dateAffectation" class="text-muted">{{ t.dateAffectation | date:'shortDate' }}</small>
-            </div>
-          </div>
-
-          <!-- Aucun membre -->
-          <div *ngIf="!intervention.equipe.techniciens?.length" class="p-2 text-muted border rounded bg-light">
-            Aucun membre affecté pour le moment.
-          </div>
-
-        </div>
-      </div>
-
-    </div> <!-- Fin colonne gauche -->
+    </div>
 
     <!-- ===== COLONNE DROITE ===== -->
     <div class="col-md-7">
+      <!-- Timeline -->
+      <div class="card shadow-sm border-0 mb-4 p-3">
+        <div class="timeline" *ngIf="interventionItems.length > 0; else noTimeline">
+          <div *ngFor="let item of interventionItems" class="timeline-item">
+            <div class="timeline-circle"></div>
+            <div class="timeline-content">
+              <small class="timeline-date">{{ item.date | date:'dd MMM yyyy HH:mm' }}</small>
+              <h6 class="timeline-title">{{ item.title }}</h6>
 
-      <!-- <div class="timeline">
-
-        <div *ngFor="let item of interventionItems" class="timeline-item">
-
-          <div class="timeline-circle"></div>
-
-          <div class="timeline-content">
-            <small class="timeline-date">{{ item.date }}</small>
-            <h6 class="timeline-title">{{ item.title }}</h6>
-
-            <ng-container [ngSwitch]="item.type">
-
-              <div *ngSwitchCase="'text'" class="timeline-text">{{ item.content }}</div>
-
-              <div *ngSwitchCase="'photo'" class="timeline-photos">
-                <img *ngFor="let img of item.content" [src]="img" class="timeline-img">
-              </div>
-
-              <div *ngSwitchCase="'signature'" class="timeline-signature">
-                <img *ngFor="let img of item.content" [src]="img" class="timeline-img">
-              </div>
-
-              <div *ngSwitchCase="'table'" class="timeline-table timeline-text">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>Durée</th>
-                      <th>Correction</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let type of item.content; let i = index">
-                      <td>{{ type }}</td>
-                      <td>{{ type === 'Intervention' ? '6 heures 57 minutes' : '-' }}</td>
-                      <td><input type="checkbox" [checked]="item.checked[i]"></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-            </ng-container>
-          </div>
-
-        </div>
-
-      </div> -->
-
-      <div class="card shadow-sm border-0 text-center p-3" *ngIf="intervention">
-
-        <!-- ===== TITRE ===== -->
-        <h6 class="fw-bold text-uppercase mb-3" style="letter-spacing:0.5px;">
-          INTERVENTION PLANIFIÉE
-        </h6>
-
-        <!-- ===== ASSIGNATION ===== -->
-        <div class="small mb-3">
-          <div class="text-muted" *ngIf="intervention?.equipe || intervention?.techniciens?.length">Assignée à</div>
-          <div class="my-2 d-flex flex-wrap justify-content-center gap-2">
-
-            <!-- ✅ Si équipe -->
-            <div class="d-flex flex-column align-items-center" *ngIf="intervention?.equipe">
-              <!-- Badge circulaire avec icône -->
-              <span class="badge rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-1"
-                style="width:48px; height:48px; font-size:16px;" [title]="intervention.equipe.nom">
-                <i class="fa fa-users"></i>
-              </span>
-              <!-- Nom de l'équipe en dessous de l'icône -->
-              <strong class="text-center">{{ intervention.equipe.nom }}</strong>
+              <ng-container [ngSwitch]="item.type">
+                <div *ngSwitchCase="'text'" class="timeline-text">{{ item.content }}</div>
+                <div *ngSwitchCase="'photo'" class="timeline-photos">
+                  <img *ngFor="let img of item.content" [src]="img" class="timeline-img">
+                </div>
+                <div *ngSwitchCase="'signature'" class="timeline-signature">
+                  <img *ngFor="let img of item.content" [src]="img" class="timeline-img">
+                </div>
+                <div *ngSwitchCase="'table'" class="timeline-table timeline-text">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Durée</th>
+                        <th>Correction</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let type of item.content; let i = index">
+                        <td>{{ type }}</td>
+                        <td>{{ type === 'Intervention' ? getRealInterventionDuration() : '-' }}</td>
+                        <td><input type="checkbox" [checked]="item.checked[i]"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </ng-container>
             </div>
-
-            <!-- ✅ Sinon techniciens -->
-            <ng-container *ngIf="!intervention?.equipe && intervention?.techniciens?.length">
-              <span *ngFor="let tech of intervention.techniciens"
-                class="badge rounded-circle bg-success d-inline-flex align-items-center justify-content-center"
-                style="width:48px; height:48px; font-size:12px;" [title]="tech.nom + ' ' + tech.prenom">
-                {{ tech.nom.charAt(0) }}{{ tech.prenom.charAt(0) }}
-              </span>
-            </ng-container>
-
-            <!-- ❌ Aucun -->
-            <span *ngIf="!intervention?.equipe && !intervention?.techniciens?.length" class="text-muted">
-              Non assignée
-            </span>
-
           </div>
         </div>
-
-        <!-- ===== DATES ===== -->
-        <div class="mb-3 small" *ngIf="intervention?.date_debut_intervention; else noPlanning">
-
-          <div>du</div>
-          <div class="fw-semibold">
-            {{ intervention.date_debut_intervention | date:'dd/MM/yyyy' }}
-            à {{ intervention.heure_debut_intervention_h }}:{{ intervention.heure_debut_intervention_min | number:'2.0'
-            }}
-          </div>
-
-          <div class="mt-1">au</div>
-          <div class="fw-semibold">
-            {{ intervention.date_fin_intervention | date:'dd/MM/yyyy' }}
-            à {{ intervention.heure_fin_intervention_h }}:{{ intervention.heure_fin_intervention_min | number:'2.0' }}
-          </div>
-
-        </div>
-
-        <!-- ❌ Aucun planning -->
-        <ng-template #noPlanning>
-          <div class="text-muted small mb-3">
-            Aucune planification enregistrée
-          </div>
-        </ng-template>
-
-        <!-- ===== BOUTONS ===== -->
-        <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-          <button class="btn btn-outline-primary btn-sm" (click)="editPlanning()">
-            <i class="fa fa-edit me-1"></i>
-            MODIFIER
-          </button>
-
-          <button class="btn btn-primary btn-sm" (click)="modePlanification(intervention)">
-            <i class="fa fa-exchange-alt me-1"></i>
-            CHANGER MODE
-          </button>
-
-        </div>
-
       </div>
 
-
-
-    </div> <!-- Fin colonne droite -->
-
-  </div> <!-- Fin row -->
+      <!-- Message si pas de timeline -->
+      <ng-template #noTimeline>
+        <div class="card shadow-sm border-0 text-center p-3">
+          <h6 class="fw-bold text-uppercase mb-3">INTERVENTION PLANIFIÉE</h6>
+          <div class="text-muted small">Aucune timeline disponible</div>
+        </div>
+      </ng-template>
+    </div>
+  </div>
 </div>
 
-
-<!-- Inclusion du composant modal-save -->
-<app-modal-save #modalSave (clientAdded)="loadData()" (clientUpdated)="loadData()">
-</app-modal-save>
+<app-modal-save #modalSave (clientAdded)="loadData()" (clientUpdated)="loadData()"></app-modal-save>

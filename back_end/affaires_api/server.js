@@ -55,6 +55,7 @@ app.put(`${URI}/interventions/:id/type`, authenticateToken, InterventionControll
 app.get(`${URI}/interventions/by-type/:type_id`, authenticateToken, InterventionController.getByTypePaginated);
 app.get(`${URI}/interventions/type/all`, authenticateToken, InterventionController.getInterventionTypes);
 app.post(`${URI}/interventions/:id/add-prevision`, authenticateToken, InterventionController.addPrevision);
+app.get(`${URI}/interventions/:id/details`, InterventionController.apiGetDetails);
 
 
 // ➕ Ajouter une planification pour une intervention

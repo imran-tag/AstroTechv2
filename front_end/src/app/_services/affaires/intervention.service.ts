@@ -119,4 +119,8 @@ export class InterventionService {
     return this.http.post(`${this.baseUrl}/${interventionId}/add-prevision`, data);
   }
 
+  getInterventionDetails(id: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${id}/details`);
+  }
+
 }

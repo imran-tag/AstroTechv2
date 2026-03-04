@@ -373,6 +373,18 @@ class Intervention {
         }
     }
 
+    // 📜 Récupérer détails intervention
+    static async apiGetDetails(req, res) {
+        try {
+            const { id } = req.params;
+            const response = await InterventionService.apiGetDetails(id);
+            res.json(response);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+
 }
 
 module.exports = Intervention;
