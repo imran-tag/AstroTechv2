@@ -811,82 +811,151 @@ class InterventionService {
     return { interventionId, date_debut: dateDebut, date_fin: dateFin, duree_heures, duree_minutes };
   }
 
+  // static async apiGetDetails(interventionId) {
+  //   try {
+
+  //     // 🔹 Requête principale intervention
+  //     const sql = `
+  //     SELECT *
+  //     FROM intervention
+  //     WHERE id = ?
+  //   `;
+
+  //     const [rows] = await pool.execute(sql, [interventionId]);
+
+  //     if (rows.length === 0) {
+  //       return { message: "Intervention non trouvée" };
+  //     }
+
+  //     const intervention = rows[0];
+
+  //     // 🔹 Workflow
+  //     const [workflow] = await pool.execute(
+  //       `SELECT * FROM intervention_workflow WHERE intervention_id = ?`,
+  //       [interventionId]
+  //     );
+  //     intervention.workflow = workflow[0] || null;
+
+  //     // 🔹 Photos
+  //     const [photos] = await pool.execute(
+  //       `SELECT id, photo_type, filename, url, latitude, longitude, comment, captured_at
+  //      FROM intervention_photos
+  //      WHERE intervention_id = ?
+  //      ORDER BY captured_at ASC`,
+  //       [interventionId]
+  //     );
+
+  //     intervention.photos = {
+  //       before: photos.filter(p => p.photo_type === 'before'),
+  //       after: photos.filter(p => p.photo_type === 'after'),
+  //       additional_work: photos.filter(p => p.photo_type === 'additional_work'),
+  //       delivery_note: photos.filter(p => p.photo_type === 'delivery_note'),
+  //       quote: photos.filter(p => p.photo_type === 'quote')
+  //     };
+
+  //     // 🔹 Signatures
+  //     const [signatures] = await pool.execute(
+  //       `SELECT signature_type, signature_data, signed_at
+  //      FROM intervention_signatures
+  //      WHERE intervention_id = ?`,
+  //       [interventionId]
+  //     );
+
+  //     intervention.signatures = {
+  //       technician: signatures.find(s => s.signature_type === 'technician') || null,
+  //       client: signatures.find(s => s.signature_type === 'client') || null,
+  //       additional_work: signatures.find(s => s.signature_type === 'additional_work') || null,
+  //       quote: signatures.find(s => s.signature_type === 'quote') || null
+  //     };
+
+  //     // 🔹 Interruptions
+  //     const [interruptions] = await pool.execute(
+  //       `SELECT id, reason, custom_reason, started_at, ended_at, duration_minutes
+  //      FROM intervention_interruptions
+  //      WHERE intervention_id = ?
+  //      ORDER BY started_at ASC`,
+  //       [interventionId]
+  //     );
+
+  //     intervention.interruptions = interruptions || [];
+
+  //     return intervention;
+
+  //   } catch (err) {
+  //     console.error("Erreur apiGetDetails:", err);
+  //     throw err;
+  //   }
+  // }
+
   static async apiGetDetails(interventionId) {
-    try {
+    const [rows] = await pool.query(`SELECT *
+FROM (
 
-      // 🔹 Requête principale intervention
-      const sql = `
-      SELECT *
-      FROM intervention
-      WHERE id = ?
-    `;
+    -- 📷 Photos
+    SELECT 
+        intervention_id,
+        'PHOTO' AS event_type,
+        photo_type AS sub_type,
+        captured_at AS event_date,
+        filename AS description
+    FROM intervention_photos
+    WHERE intervention_id = ?
 
-      const [rows] = await pool.execute(sql, [interventionId]);
+    UNION ALL
 
-      if (rows.length === 0) {
-        return { message: "Intervention non trouvée" };
+    -- ✍ Signatures
+    SELECT 
+        intervention_id,
+        'SIGNATURE',
+        signature_type,
+        signed_at,
+        NULL
+    FROM intervention_signatures
+    WHERE intervention_id = ?
+
+    UNION ALL
+
+    -- ⏸ Interruptions
+    SELECT 
+        intervention_id,
+        'INTERRUPTION',
+        reason,
+        started_at,
+        custom_reason
+    FROM intervention_interruptions
+    WHERE intervention_id = ?
+
+    UNION ALL
+
+    -- ✅ Workflow
+    SELECT 
+        intervention_id,
+        'WORKFLOW',
+        NULL,
+        completed_at,
+        comment
+    FROM intervention_workflow
+    WHERE intervention_id = ?
+
+) history
+ORDER BY event_date ASC;`, [
+      interventionId, interventionId, interventionId, interventionId
+    ]);
+
+    const grouped = {};
+
+    rows.forEach(event => {
+      const day = event.event_date.toISOString().split('T')[0];
+
+      if (!grouped[day]) {
+        grouped[day] = [];
       }
 
-      const intervention = rows[0];
+      grouped[day].push(event);
+    });
 
-      // 🔹 Workflow
-      const [workflow] = await pool.execute(
-        `SELECT * FROM intervention_workflow WHERE intervention_id = ?`,
-        [interventionId]
-      );
-      intervention.workflow = workflow[0] || null;
-
-      // 🔹 Photos
-      const [photos] = await pool.execute(
-        `SELECT id, photo_type, filename, url, latitude, longitude, comment, captured_at
-       FROM intervention_photos
-       WHERE intervention_id = ?
-       ORDER BY captured_at ASC`,
-        [interventionId]
-      );
-
-      intervention.photos = {
-        before: photos.filter(p => p.photo_type === 'before'),
-        after: photos.filter(p => p.photo_type === 'after'),
-        additional_work: photos.filter(p => p.photo_type === 'additional_work'),
-        delivery_note: photos.filter(p => p.photo_type === 'delivery_note'),
-        quote: photos.filter(p => p.photo_type === 'quote')
-      };
-
-      // 🔹 Signatures
-      const [signatures] = await pool.execute(
-        `SELECT signature_type, signature_data, signed_at
-       FROM intervention_signatures
-       WHERE intervention_id = ?`,
-        [interventionId]
-      );
-
-      intervention.signatures = {
-        technician: signatures.find(s => s.signature_type === 'technician') || null,
-        client: signatures.find(s => s.signature_type === 'client') || null,
-        additional_work: signatures.find(s => s.signature_type === 'additional_work') || null,
-        quote: signatures.find(s => s.signature_type === 'quote') || null
-      };
-
-      // 🔹 Interruptions
-      const [interruptions] = await pool.execute(
-        `SELECT id, reason, custom_reason, started_at, ended_at, duration_minutes
-       FROM intervention_interruptions
-       WHERE intervention_id = ?
-       ORDER BY started_at ASC`,
-        [interventionId]
-      );
-
-      intervention.interruptions = interruptions || [];
-
-      return intervention;
-
-    } catch (err) {
-      console.error("Erreur apiGetDetails:", err);
-      throw err;
-    }
+    return grouped;
   }
-
 
 }
 

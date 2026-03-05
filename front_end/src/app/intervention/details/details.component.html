@@ -1,89 +1,128 @@
 <div class="container mt-4" *ngIf="intervention">
-  <!-- TITRE ET ACTIONS -->
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0"><strong>Détail de l'intervention</strong> — N° {{ intervention.numero || '—' }}</h3>
-    <div class="btn-group" role="group">
-      <button class="btn btn-outline-warning btn-sm" title="Modifier" (click)="editIntervention(intervention.id)">
-        <i class="mdi mdi-pencil"></i>
-      </button>
-      <button class="btn btn-outline-danger btn-sm" title="Supprimer" (click)="deleteIntervention(intervention.id)">
-        <i class="mdi mdi-delete"></i>
-      </button>
+    <h3 class="mb-0"><strong>Détail de l'intervention</strong> — N° {{ intervention.numero }}</h3>
+    <div class="btn-group">
+      <button class="btn btn-outline-warning btn-sm" (click)="editIntervention(intervention.id)"><i class="fa fa-pencil"></i></button>
+      <button class="btn btn-outline-danger btn-sm" (click)="deleteIntervention(intervention.id)"><i class="fa fa-trash"></i></button>
     </div>
   </div>
 
   <div class="row g-4">
-    <!-- ===== COLONNE GAUCHE ===== -->
     <div class="col-md-5">
-      <!-- Card : Détails de l'intervention -->
       <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white text-primary rounded-top">
-          <h5 class="mb-0"><i class="fa fa-info-circle me-2"></i>Détails de l'intervention</h5>
+        <div class="card-header bg-white text-primary fw-bold border-bottom">
+          <i class="fa fa-info-circle me-2"></i>Détails
         </div>
-        <div class="card-body list-group list-group-flush">
-          <p class="list-group-item"><strong>Titre :</strong> {{ intervention.titre || '—' }}</p>
-          <p class="list-group-item"><strong>Type :</strong> {{ intervention.type_intervention || '—' }}</p>
-          <p class="list-group-item"><strong>Priorité :</strong> {{ intervention.priorite || '—' }}</p>
-          <p class="list-group-item"><strong>État :</strong> {{ formatEtat(intervention.etat) }}</p>
-          <p class="list-group-item"><strong>Date création :</strong> {{ intervention.date_creation | date:'short' }}</p>
-          <div class="list-group-item bg-light rounded mt-2">
-            <strong>Description :</strong>
-            <p class="mb-0">{{ intervention.description || '—' }}</p>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush small">
+            <li class="list-group-item"><strong>Titre :</strong> {{ intervention.titre }}</li>
+            <li class="list-group-item"><strong>État :</strong> {{ formatEtat(intervention.etat) }}</li>
+            <li class="list-group-item"><strong>Création :</strong> {{ intervention.date_creation | date:'dd/MM/yyyy HH:mm' }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0 mb-4" *ngIf="intervention.client">
+        <div class="card-header bg-white text-success fw-bold border-bottom">
+          <i class="fa fa-building me-2"></i>Client & Zone
+        </div>
+        <div class="card-body small">
+          <p class="mb-1 text-success fw-bold">CLIENT</p>
+          <p class="mb-2">{{ intervention.client.nom_client }}</p>
+          <div *ngIf="intervention.zone_intervention?.data">
+            <hr>
+            <p class="mb-1 text-success fw-bold">ZONE</p>
+            <p class="mb-0">{{ intervention.zone_intervention.data.reference }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ===== COLONNE DROITE ===== -->
     <div class="col-md-7">
-      <!-- Timeline -->
-      <div class="card shadow-sm border-0 mb-4 p-3">
-        <div class="timeline" *ngIf="interventionItems.length > 0; else noTimeline">
-          <div *ngFor="let item of interventionItems" class="timeline-item">
-            <div class="timeline-circle"></div>
-            <div class="timeline-content">
-              <small class="timeline-date">{{ item.date | date:'dd MMM yyyy HH:mm' }}</small>
-              <h6 class="timeline-title">{{ item.title }}</h6>
+      <div class="card shadow-sm border-0 text-center p-4 mb-4" *ngIf="!interventionItems || interventionItems.length === 0">
+  <h6 class="fw-bold text-muted small">PLANIFICATION ACTUELLE</h6>
 
-              <ng-container [ngSwitch]="item.type">
-                <div *ngSwitchCase="'text'" class="timeline-text">{{ item.content }}</div>
-                <div *ngSwitchCase="'photo'" class="timeline-photos">
-                  <img *ngFor="let img of item.content" [src]="img" class="timeline-img">
-                </div>
-                <div *ngSwitchCase="'signature'" class="timeline-signature">
-                  <img *ngFor="let img of item.content" [src]="img" class="timeline-img">
-                </div>
-                <div *ngSwitchCase="'table'" class="timeline-table timeline-text">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Type</th>
-                        <th>Durée</th>
-                        <th>Correction</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let type of item.content; let i = index">
-                        <td>{{ type }}</td>
-                        <td>{{ type === 'Intervention' ? getRealInterventionDuration() : '-' }}</td>
-                        <td><input type="checkbox" [checked]="item.checked[i]"></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </ng-container>
+  <!-- Équipe et techniciens -->
+  <div class="d-flex justify-content-center gap-3 my-3">
+    <div *ngIf="intervention.equipe" class="text-center">
+      <div class="badge-circle bg-primary text-white mx-auto d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%;">
+        <i class="fa fa-users"></i>
+      </div>
+      <small class="fw-bold">{{ intervention.equipe.nom }}</small>
+    </div>
+
+    <div *ngFor="let tech of intervention.techniciens" class="text-center">
+      <div class="badge-circle bg-info text-white mx-auto d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%;">
+        {{ tech.nom?.charAt(0) || '?' }}
+      </div>
+      <small class="fw-bold">{{ tech.nom }} {{ tech.prenom }}</small>
+    </div>
+  </div>
+
+  <!-- Période intervention -->
+  <div class="planning-box p-3 bg-light rounded mb-3" *ngIf="intervention.date_debut_intervention && intervention.date_fin_intervention">
+    <div class="row align-items-center text-center">
+      <div class="col-5">
+        <small class="text-muted">DU</small>
+        <div class="fw-bold text-primary">{{ intervention.date_debut_intervention | date:'dd/MM/yyyy' }}</div>
+        <small>{{ intervention.heure_debut_intervention_h }}h{{ pad(intervention.heure_debut_intervention_min) }}</small>
+      </div>
+      <div class="col-2 text-muted">
+        <i class="fa fa-arrow-right"></i>
+      </div>
+      <div class="col-5">
+        <small class="text-muted">AU</small>
+        <div class="fw-bold text-primary">{{ intervention.date_fin_intervention | date:'dd/MM/yyyy' }}</div>
+        <small>{{ intervention.heure_fin_intervention_h }}h{{ pad(intervention.heure_fin_intervention_min) }}</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="d-flex justify-content-center gap-2">
+    <button class="btn btn-outline-primary btn-sm px-3" (click)="editPlanning()">MODIFIER</button>
+    <button class="btn btn-primary btn-sm px-3" (click)="modePlanification(intervention)">CHANGER MODE</button>
+  </div>
+</div>
+
+      <div class="card shadow-sm border-0 p-4">
+        <h5 class="text-uppercase fw-bold text-muted border-bottom pb-3 mb-4 small">Flux Terrain</h5>
+        <div class="timeline" *ngIf="interventionItems.length > 0; else noHistory">
+          <div *ngFor="let item of interventionItems" class="timeline-row">
+            <div class="timeline-indicator">
+              <div class="dot" [class.dot-status]="item.type === 'status'"></div>
+              <div class="line"></div>
+            </div>
+            <div class="timeline-content pb-4 w-100">
+              <div class="d-flex justify-content-between small">
+                <span class="fw-bold text-uppercase">{{ item.title }}</span>
+                <span class="text-muted">{{ item.date | date:'dd/MM HH:mm' }}</span>
+              </div>
+              <div class="event-body mt-2">
+                 <div *ngIf="item.type === 'photo'" class="d-flex gap-2">
+                    <img *ngFor="let img of item.content" [src]="img" class="img-report border shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                 </div>
+                 <div *ngIf="item.type === 'signature'" class="border p-2 rounded bg-light" style="max-width: 200px;">
+                    <img [src]="item.content[0]" class="img-fluid">
+                 </div>
+                 <div *ngIf="item.type === 'table'" class="table-responsive mt-2">
+                   <table class="table table-sm table-bordered bg-white small">
+                     <tr *ngFor="let task of item.content">
+                       <td>{{ task }}</td>
+                       <td>{{ task === 'Intervention' ? getRealInterventionDuration() : '-' }}</td>
+                       <td class="text-center text-success"><i class="fa fa-check-square"></i></td>
+                     </tr>
+                   </table>
+                 </div>
+                 <p *ngIf="item.type === 'text'" class="text-muted mb-0 small">{{ item.content }}</p>
+              </div>
             </div>
           </div>
         </div>
+        <ng-template #noHistory>
+          <p class="text-center text-muted py-4">Aucun événement enregistré.</p>
+        </ng-template>
       </div>
-
-      <!-- Message si pas de timeline -->
-      <ng-template #noTimeline>
-        <div class="card shadow-sm border-0 text-center p-3">
-          <h6 class="fw-bold text-uppercase mb-3">INTERVENTION PLANIFIÉE</h6>
-          <div class="text-muted small">Aucune timeline disponible</div>
-        </div>
-      </ng-template>
     </div>
   </div>
 </div>

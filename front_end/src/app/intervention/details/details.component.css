@@ -1,81 +1,19 @@
-.timeline {
-  position: relative;
-  margin-left: 30px;
-  padding-left: 0px;
-  border-left: 2px solid #0dcaf0; /* <-- la ligne verticale */
+.timeline { position: relative; padding-left: 10px; }
+.timeline-row { display: flex; position: relative; padding-bottom: 25px; }
+
+.timeline-indicator {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 20px; display: flex; justify-content: center;
 }
 
-/* Chaque item */
-.timeline-item {
-  position: relative;
-  margin-bottom: 30px;
+.timeline-indicator .line { width: 2px; background-color: #e9ecef; height: 100%; }
+.timeline-indicator .dot {
+  width: 10px; height: 10px; background-color: #007bff;
+  border-radius: 50%; position: absolute; top: 5px; z-index: 2;
 }
 
-/* Cercle */
-.timeline-circle {
-    position: absolute;
-    left: -8px;
-    top: 0;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background-color: #0dcaf0;
-    /* border: 1px solid white; */
-    box-sizing: border-box;
-}
-
-/* Contenu */
-.timeline-content {
-  margin-left: 30px;
-}
-
-/* Date et titre */
-.timeline-date {
-  color: #888;
-  font-size: 0.85rem;
-}
-.timeline-title {
-  font-weight: bold;
-  margin: 4px 0 8px 0;
-}
-
-/* Texte */
-.timeline-text {
-  background-color: #f8f9fa;
-  padding: 8px;
-  border-radius: 4px;
-}
-
-/* Photos et signature */
-.timeline-photos, .timeline-signature {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.timeline-img {
-  max-width: 150px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-/* Tableau */
-.timeline-table table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.timeline-table th, .timeline-table td {
-  border: 1px solid #ddd;
-  padding: 4px 8px;
-  font-size: 0.9rem;
-}
-.timeline-table th {
-  background-color: #f1f1f1;
-}
-
-
-.btn-info{
-  font-size: 10px;
-  width: 246px;
-  font-weight: 700;
-  margin: 11px;
-}
+.timeline-content { padding-left: 20px; }
+.extra-small { font-size: 0.7rem; }
+.img-report { width: 75px; height: 75px; object-fit: cover; border-radius: 4px; }
+.timeline-row:last-child .line { display: none; }
