@@ -632,13 +632,13 @@ export class ModalSaveComponent {
     this.parentClient = { type: type, id: id };
     this.isVisibleListClient = true;
     this.filteredOptions(type);
-    this.getAllClientsEnfantsByParent(id);
+    this.getAllClientsEnfantsByParent(id, type);
   }
 
 
   // Charger les clients enfants
-  getAllClientsEnfantsByParent(id: number) {
-    this.clientsService.getClientsByParentWithDetails(id).subscribe((result: any) => {
+  getAllClientsEnfantsByParent(id: number, type:string) {
+    this.clientsService.getClientsByParentWithDetails(id,type).subscribe((result: any) => {
       // this.clients = (result.data as any[]).map(client => ({
       //   ...client,
       //   contacts: client.contacts || []

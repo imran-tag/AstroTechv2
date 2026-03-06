@@ -382,45 +382,38 @@
 </div>
 
 <!-- ***** TEMPLATE LIST CLIENTS ***** -->
-<!-- TEMPLATE LIST CLIENTS : doit être défini en haut -->
 <ng-template #listClients let-clients="clients">
   <!-- Bouton Ajouter -->
-  <button type="button" class="btn btn-sm btn-gradient-success btn-fw mb-3" (click)="addClientByOther()">
-    <i class="fa fa-plus me-1"></i> Ajouter un client
+  <button type="button" class="btn btn-success btn-sm d-flex align-items-center gap-2 mb-3"
+    (click)="addClientByOther()">
+    <i class="fa fa-plus"></i>
+    <span>Ajouter un client</span>
   </button>
   <div class="row">
     <ng-container *ngIf="clients?.length > 0; else noClients">
-      <div class="col-md-6 col-lg-6" *ngFor="let client of clients">
-        <div class="card shadow-sm h-100 border-0" (click)="setZone(client)">
-          <div class="card-header bg-light">
-            <span class="fw-bold">{{ client.nom_client }} - {{ client.numero }}</span><br>
-            <small class="text-muted fst-italic">
-              Type : <span class="badge bg-secondary">{{ client.type_client | titlecase }}</span>
-            </small>
-          </div>
+      <div class="col-md-6 col-lg-4 mb-3" *ngFor="let client of clients">
+        <div class="card shadow-sm border-0 h-100" (click)="setZone(client)">
+
           <div class="card-body">
-            <h6 class="text-muted">Contacts</h6>
-            <ng-container *ngIf="client.contacts?.length > 0; else noContacts">
-              <ul class="list-unstyled">
-                <li *ngFor="let contact of client.contacts" class="mb-2 p-2 border rounded">
-                  <strong>{{ contact.nom_complet }}</strong> - <em>{{ contact.poste }}</em>
-                  <div class="mt-1">
-                    <span *ngFor="let email of contact.listEmails" class="badge bg-info text-dark me-1">
-                      <i class="fa fa-envelope"></i> {{ email.email }}
-                    </span>
-                  </div>
-                  <div class="mt-1">
-                    <span *ngFor="let tel of contact.listTels" class="badge bg-success me-1">
-                      <i class="fa fa-phone"></i> {{ tel.tel }}
-                    </span>
-                  </div>
-                </li>
-              </ul>
-            </ng-container>
-            <ng-template #noContacts>
-              <span class="text-secondary">Aucun contact</span>
-            </ng-template>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="fw-bold mb-0">{{ client.nom_client }}</h6>
+              <span class="badge bg-secondary">{{ client.numero }}</span>
+            </div>
+
+            <div class="mb-2">
+              <span class="badge bg-light text-dark">
+                {{ client.type_client | titlecase }}
+              </span>
+            </div>
+
+            <div class="text-muted small">
+              <i class="fa fa-map-marker-alt me-1"></i>
+              {{ client.adresse?.adresse || 'Adresse non disponible' }}
+            </div>
+
           </div>
+
         </div>
       </div>
     </ng-container>
