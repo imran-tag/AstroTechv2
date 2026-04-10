@@ -1,0 +1,63 @@
+.xx-small { font-size: 0.65rem; }
+.x-small { font-size: 0.75rem; }
+.shadow-xs { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+/* Icon Box Mini */
+.icon-box-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bg-primary-soft { background-color: #f0f4ff; }
+
+/* Team Card Mini */
+.team-card-mini {
+  border-radius: 12px;
+  border: 1px solid #f1f5f9 !important;
+  transition: transform 0.2s ease;
+}
+.team-card-mini:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1 !important;
+}
+
+.team-badge-sm {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, #4f46e5, #818cf8);
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.btn-icon-delete-sm {
+  background: #fff5f5;
+  color: #ff4d4d;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.dot-sm {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.bg-soft-info { background-color: #e0f2fe; color: #0369a1; }
+.scroll-fine::-webkit-scrollbar { width: 3px; }
+.scroll-fine::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+.card .card-body {
+    padding: 12px !important;
+}

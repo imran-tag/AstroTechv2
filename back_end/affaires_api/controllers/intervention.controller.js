@@ -45,82 +45,76 @@ class Intervention {
 
     // ➕ Créer une nouvelle intervention
     static async apiCreate(req, res) {
-        try {
+    try {
+        const {
+            numero,
+            titre,
+            type_id,
+            description,
+            client_id,
+            zone_intervention_client_id,
+            type_client_zone_intervention,
+            priorite,
+            etat,
+            date_butoir_realisation,
+            date_cloture_estimee,
+            mots_cles,           // Synchronisé avec le JSON
+            referent_ids,        // Synchronisé avec le JSON
+            montant_intervention,
+            montant_main_oeuvre,
+            montant_fournitures,
+            createur_id = req.user?.id
+        } = req.body;
 
-            const {
-                numero,
-                titre,
-                type_id,
-                description,
-
-                client_id,
-                zone_intervention_client_id,
-                type_client_zone_intervention,
-
-                priorite,
-                etat,
-                date_butoir_realisation,
-                date_cloture_estimee,
-                motsCles,
-
-                montant_intervention,
-                montant_main_oeuvre,
-                montant_fournitures,
-
-                referents,
-                createur_id = req.user.id
-            } = req.body;
-
-            if (!titre || !type_id || numero == null) {
-                return res.status(400).json({ error: "Les champs titre, type et numero sont obligatoires" });
-            }
-
-            const parseDate = (d) => {
-                if (!d || d === '' || typeof d !== 'string') return null;
-                const date = new Date(d);
-                return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0];
-            };
-
-            const record = {
-                numero,
-                titre,
-                type_id,
-                description,
-
-                client_id: Number(client_id || 0),
-                zone_intervention_client_id: Number(zone_intervention_client_id || 0),
-                type_client_zone_intervention: type_client_zone_intervention || '',
-
-                priorite: priorite || '',
-                etat: etat || '',
-
-                date_butoir_realisation: parseDate(date_butoir_realisation),
-                date_cloture_estimee: parseDate(date_cloture_estimee),
-
-                mots_cles: Array.isArray(motsCles) ? motsCles.join(',') : (motsCles || ''),
-
-                montant_intervention: Number(montant_intervention || 0),
-                montant_main_oeuvre: Number(montant_main_oeuvre || 0),
-                montant_fournitures: Number(montant_fournitures || 0),
-
-                referents: Array.isArray(referents) ? referents.map(Number) : [],
-
-                createur_id
-            };
-
-            const response = await InterventionService.apiCreate(record);
-
-            return res.status(201).json({
-                success: true,
-                message: "Intervention créée avec succès",
-                data: response
-            });
-
-        } catch (error) {
-            console.error("❌ Controller apiCreate intervention:", error);
-            return res.status(500).json({ success: false, error: error.message });
+        // Validation des champs obligatoires
+        if (!titre || !type_id || numero == null) {
+            return res.status(400).json({ error: "Les champs titre, type et numero sont obligatoires" });
         }
+
+        const parseDate = (d) => {
+            if (!d || d === '' || typeof d !== 'string') return null;
+            const date = new Date(d);
+            return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0];
+        };
+
+        // Préparation de l'objet pour le Service
+        const record = {
+            numero: Number(numero),
+            titre,
+            type_id,
+            description: description || '',
+            client_id: client_id ? Number(client_id) : null,
+            zone_intervention_client_id: zone_intervention_client_id ? Number(zone_intervention_client_id) : null,
+            type_client_zone_intervention: type_client_zone_intervention || '',
+            priorite: priorite || 'Normale',
+            etat: etat || 'Ouvert',
+            date_butoir_realisation: parseDate(date_butoir_realisation),
+            date_cloture_estimee: parseDate(date_cloture_estimee),
+            // Gestion des mots clés (si tableau, on joint, sinon texte brut)
+            mots_cles: Array.isArray(mots_cles) ? mots_cles.join(',') : (mots_cles || ''),
+            montant_intervention: Number(montant_intervention || 0),
+            montant_main_oeuvre: Number(montant_main_oeuvre || 0),
+            montant_fournitures: Number(montant_fournitures || 0),
+            // On transforme referent_ids en referents pour le service
+            referents: Array.isArray(referent_ids) 
+                ? referent_ids.map(Number).filter(id => !isNaN(id)) 
+                : [],
+            createur_id: createur_id ? Number(createur_id) : null
+        };
+
+        const response = await InterventionService.apiCreate(record);
+
+        return res.status(201).json({
+            success: true,
+            message: "Intervention créée avec succès",
+            data: response
+        });
+
+    } catch (error) {
+        console.error("❌ Controller Error:", error);
+        return res.status(500).json({ success: false, error: error.message });
     }
+}
 
     // ✏️ Modifier une intervention par ID
     static async apiUpdateById(req, res) {

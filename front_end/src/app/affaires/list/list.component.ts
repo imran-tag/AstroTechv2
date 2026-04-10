@@ -13,6 +13,7 @@ import { environment } from '../../../environments/environment';
   styleUrl: './list.component.css'
 })
 export class ListComponent {
+  today: Date = new Date(); // AJOUTEZ CETTE LIGNE
   affaires: any = [];
   selectedAffaire: any | null = null;
   loading = true;
@@ -22,7 +23,7 @@ export class ListComponent {
 
   // ================= PAGINATION =================
   page = 1;             // page actuelle
-  limit = 20;            // nombre d'éléments par page
+  limit = 28;            // nombre d'éléments par page
   total = 0;            // total d'éléments côté backend
   searchTerm = '';      // texte de recherche
 
@@ -35,6 +36,12 @@ export class ListComponent {
   ngOnInit(): void {
     this.loadAffaires();
   }
+
+  isMenuOpen = false;
+
+toggleMenu() {
+  this.isMenuOpen = !this.isMenuOpen;
+}
 
   // ✅ Getter pour afficher les noms des fichiers
   get newFilesNames(): string {
@@ -115,52 +122,95 @@ export class ListComponent {
     this.newFiles.splice(index, 1);
   }
 
-  /** Upload fichiers vers backend */
+  // /** Upload fichiers vers backend */
+  // async uploadFiles() {
+  //   if (!this.selectedAffaire || !this.newFiles || this.newFiles.length === 0) return;
+
+  //   try {
+  //     for (const file of this.newFiles) {
+  //       const fd = new FormData();
+  //       fd.append('files', file);
+  //       fd.append('idAffaire', this.selectedAffaire.affaireId.toString());
+
+  //       // Envoi au backend
+  //       const res: any = await lastValueFrom(this.fichiersService.uploadFiles(fd));
+
+  //       console.log("Réponse backend :", res.body);
+
+  //       // Sécurité : vérifier que res.files est bien un tableau
+  //       const uploadedFiles = Array.isArray(res.body.files) ? res.body.files : [];
+
+  //       if (!this.selectedAffaire.fichiers) {
+  //         this.selectedAffaire.fichiers = [];
+  //       }
+
+  //       // Ajouter les fichiers uploadés dans la liste affichée
+  //       const nouveauxFichiers = uploadedFiles.map((f: any) => ({
+  //         id: f.id,
+  //         nom: f.originalname,
+  //         chemin: f.filename,
+  //         size: f.size,
+  //         mimetype: f.mimetype
+  //       }));
+
+  //       //console.log('** nouveauxFichiers **',uploadedFiles);
+
+  //       // ⚡ Créer une nouvelle référence pour déclencher la détection Angular
+  //       this.selectedAffaire.fichiers = [...(this.selectedAffaire.fichiers || []), ...nouveauxFichiers];
+  //     }
+
+  //     // Vider la liste des fichiers sélectionnés
+  //     this.newFiles = [];
+  //   } catch (err) {
+  //     console.error('Erreur upload', err);
+  //     alert('Erreur lors de l\'upload des fichiers');
+  //   }
+  // }
+
   async uploadFiles() {
-    if (!this.selectedAffaire || !this.newFiles || this.newFiles.length === 0) return;
+  if (!this.selectedAffaire || !this.newFiles || this.newFiles.length === 0) return;
 
-    try {
-      for (const file of this.newFiles) {
-        const fd = new FormData();
-        fd.append('files', file);
-        fd.append('idAffaire', this.selectedAffaire.affaireId.toString());
+  try {
+    for (const file of this.newFiles) {
+      const fd = new FormData();
+      fd.append('files', file);
+      fd.append('idAffaire', this.selectedAffaire.affaireId.toString());
 
-        // Envoi au backend
-        const res: any = await lastValueFrom(this.fichiersService.uploadFiles(fd));
+      // Envoi au backend
+      const res: any = await lastValueFrom(this.fichiersService.uploadFiles(fd));
+      
+      // On récupère les données de la réponse (ajustez selon votre structure API)
+      const uploadedFiles = Array.isArray(res.body?.files) ? res.body.files : [];
 
-        console.log("Réponse backend :", res.body);
+      // Mapper les fichiers au format attendu par votre interface
+      const nouveauxFichiers = uploadedFiles.map((f: any) => ({
+        id: f.id,
+        nom: f.originalname || f.nom,
+        type: f.mimetype || f.type,
+        chemin: f.filename || f.chemin
+      }));
 
-        // Sécurité : vérifier que res.files est bien un tableau
-        const uploadedFiles = Array.isArray(res.body.files) ? res.body.files : [];
-
-        if (!this.selectedAffaire.fichiers) {
-          this.selectedAffaire.fichiers = [];
-        }
-
-        // Ajouter les fichiers uploadés dans la liste affichée
-        const nouveauxFichiers = uploadedFiles.map((f: any) => ({
-          id: f.id,
-          nom: f.originalname,
-          chemin: f.filename,
-          size: f.size,
-          mimetype: f.mimetype
-        }));
-
-        //console.log('** nouveauxFichiers **',uploadedFiles);
-
-        // ⚡ Créer une nouvelle référence pour déclencher la détection Angular
-        this.selectedAffaire.fichiers = [...(this.selectedAffaire.fichiers || []), ...nouveauxFichiers];
+      // IMPORTANT : Utiliser le même nom que dans votre template HTML (fichiersJoints)
+      if (!this.selectedAffaire.fichiersJoints) {
+        this.selectedAffaire.fichiersJoints = [];
       }
 
-      // Vider la liste des fichiers sélectionnés
-      this.newFiles = [];
-    } catch (err) {
-      console.error('Erreur upload', err);
-      alert('Erreur lors de l\'upload des fichiers');
+      // Mise à jour de la liste avec un nouveau tableau (Spread operator) 
+      // Cela force Angular à rafraîchir la vue immédiatement
+      this.selectedAffaire.fichiersJoints = [
+        ...this.selectedAffaire.fichiersJoints, 
+        ...nouveauxFichiers
+      ];
     }
+
+    // Réinitialisation
+    this.newFiles = [];
+    console.log("Liste mise à jour :", this.selectedAffaire.fichiersJoints);
+
+  } catch (err) {
+    console.error('Erreur upload', err);
   }
-
-
+}
 
   /** Supprimer un fichier uploadé */
   removeUploadedFile(fichierId: number) {

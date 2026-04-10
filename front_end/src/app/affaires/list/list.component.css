@@ -1,3 +1,53 @@
-.f-13{
-  font-size: 13px !important;
+/* Tailles Ultra-compactes */
+.xx-small { font-size: 0.62rem; }
+.shadow-xs { box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+/* Animation et style de la carte */
+.affaire-card {
+  background: #ffffff;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #f1f5f9 !important; /* Bordure légère par défaut */
+}
+
+.affaire-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Style quand sélectionné */
+.affaire-card.is-selected {
+  background-color: #eff6ff !important; /* Bleu très clair */
+  border-color: #3b82f6 !important;
+  border-left-width: 5px !important;
+}
+
+.is-selected h6 {
+  color: #1d4ed8 !important; /* Texte bleu foncé pour la lisibilité */
+}
+
+.is-selected .badge {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+/* Scrollbar discrète pour le conteneur */
+.overflow-auto::-webkit-scrollbar {
+  width: 4px;
+}
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.card .card-body {
+    padding: 11px !important;
+}
+
+.dropdown-menu{
+  display: block; 
+  visibility: hidden; 
+  opacity: 0; 
+  transition: all 0.2s; 
+  right: 0px; top: 16px;
 }

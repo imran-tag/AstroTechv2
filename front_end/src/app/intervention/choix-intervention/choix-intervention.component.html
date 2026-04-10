@@ -83,69 +83,90 @@
                         (keyup)="loadAffaires()">
                 </div>
 
-                <div class="table-responsive custom-scrollbar" style="max-height: 400px; overflow-y: auto;">
-                    <table class="table align-middle table-hover">
+                <div class="table-responsive custom-scrollbar" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-sm align-middle table-hover mb-0">
                         <thead class="bg-light" style="position: sticky; top: 0; z-index: 10;">
-                            <tr class="text-muted small">
-                                <th class="border-0 ps-3" style="letter-spacing: 0.5px; text-transform: capitalize;">
-                                    Référence</th>
-                                <th class="border-0" style="letter-spacing: 0.5px; text-transform: capitalize;">Affaire
-                                    / Client</th>
-                                <th class="border-0 text-center"
-                                    style="letter-spacing: 0.5px; text-transform: capitalize;">Techniciens</th>
-                                <th class="border-0 text-center"
-                                    style="letter-spacing: 0.5px; text-transform: capitalize;">Action</th>
+                            <tr class="text-muted" style="font-size: 0.75rem;">
+                                <th class="border-0 ps-3 py-2">Référence</th>
+                                <th class="border-0 py-2">Affaire / Client</th>
+                                <th class="border-0 text-center py-2">Techniciens</th>
+                                <th class="border-0 text-center py-2">Action</th>
                             </tr>
                         </thead>
                         <tbody class="border-top-0">
-                            <tr *ngFor="let a of affaires" (dblclick)="goToIntervention(a)" style="cursor: pointer;">
-                                <td class="ps-3">
-                                    <span class="badge bg-primary-subtle text-primary fw-bold"
-                                        style="padding: 6px 10px; border-radius: 6px;">
+                            <tr *ngFor="let a of affaires" (dblclick)="goToIntervention(a)"
+                                style="cursor: pointer; font-size: 0.85rem;">
+                                <td class="ps-3 py-1"> <span class="badge bg-primary-subtle text-primary fw-bold"
+                                        style="padding: 3px 6px; border-radius: 4px; font-size: 0.7rem;">
                                         {{ a.reference }}
                                     </span>
                                 </td>
-                                <td>
-                                    <div class="fw-bold text-dark">{{ a.titre }}</div>
-                                    <div class="text-muted small d-flex align-items-center">
+                                <td class="py-1">
+                                    <div class="fw-bold text-dark" style="line-height: 1.2;">{{ a.titre }}</div>
+                                    <div class="text-muted d-flex align-items-center" style="font-size: 0.75rem;">
                                         <i class="mdi mdi-account-outline me-1"></i> {{ a.nomClient }}
                                     </div>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center py-1">
                                     <div class="d-flex justify-content-center align-items-center"
-                                        style="min-height: 40px;">
+                                        style="min-height: 30px;">
                                         <div *ngFor="let tech of a.listeTechniciens" [ngStyle]="getAvatarStyle(tech)"
+                                            style="width: 28px !important; height: 28px !important; font-size: 10px !important;"
                                             [title]="tech" class="shadow-sm">
                                             {{ getInitials(tech) }}
                                         </div>
                                         <span *ngIf="!a.listeTechniciens || a.listeTechniciens.length === 0"
-                                            class="text-muted small fst-italic">Non assigné</span>
+                                            class="text-muted small fst-italic" style="font-size: 0.7rem;">Non
+                                            assigné</span>
                                     </div>
                                 </td>
-                                <td class="text-center">
-                                    <button class="btn btn-link p-0 text-primary transition-all"
-                                        (click)="goToIntervention(a)" style="text-decoration: none;">
-                                        <i class="mdi mdi-chevron-right-circle fs-2"></i>
-                                    </button>
+                                <td class="text-center py-1">
+                                    <button class="btn btn-link p-0 text-primary" (click)="goToIntervention(a)">
+                                        <i class="mdi mdi-chevron-right-circle fs-4"></i> </button>
                                 </td>
                             </tr>
 
                             <tr *ngIf="affaires.length === 0">
-                                <td colspan="4" class="text-center py-5">
-                                    <div
-                                        class="d-flex flex-column align-items-center justify-content-center text-muted">
-                                        <i class="mdi mdi-folder-search-outline mb-2"
-                                            style="font-size: 3rem; opacity: 0.5;"></i>
-                                        <h6 class="fw-bold">Aucune affaire trouvée</h6>
-                                        <p class="small mb-0">Il n'y a aucune donnée correspondant à votre recherche.
-                                        </p>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="mdi mdi-folder-search-outline"
+                                            style="font-size: 2rem; opacity: 0.5;"></i>
+                                        <p class="small mb-0">Aucune affaire trouvée</p>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                
+
+                <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+                    <div class="text-muted small">
+                        Page <strong>{{ page }}</strong> sur <strong>{{ totalPages }}</strong>
+                    </div>
+
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0 shadow-sm">
+                            <li class="page-item" [class.disabled]="page === 1">
+                                <button class="page-link border-0" (click)="changePage(page - 1)"
+                                    [disabled]="page === 1">
+                                    <i class="mdi mdi-chevron-left"></i>
+                                </button>
+                            </li>
+
+                            <li class="page-item active">
+                                <span class="page-link border-0">{{ page }}</span>
+                            </li>
+
+                            <li class="page-item" [class.disabled]="page >= totalPages">
+                                <button class="page-link border-0" (click)="changePage(page + 1)"
+                                    [disabled]="page >= totalPages">
+                                    <i class="mdi mdi-chevron-right"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
             </div>
         </div>
     </div>

@@ -104,3 +104,78 @@
     </div>
   </div>
 </ng-template>
+
+
+<!-- ================= MODAL INTERVENTION ================= -->
+<div class="modal fade" id="cardModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title text-uppercase">{{ selectedItem?.title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-0">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-secondary text-uppercase small">
+            <tr>
+              <th class="text-center" style="width: 40px">#</th>
+              <th>Intervention</th>
+              <th>Client</th>
+              <th>Contact</th>
+              <th>Zone d’intervention</th>
+              <th>Date clôture</th>
+              <!-- <th class="text-center">Statut</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let i of interventions; let idx = index">
+              <td class="text-center fw-bold text-muted">{{ idx + 1 }}</td>
+              <td>
+                <div class="fw-semibold">{{ i.titre }}</div>
+                <small class="text-muted">{{ i.description }}</small>
+              </td>
+              <td>
+                <div class="fw-semibold">{{ i.client?.nom }}</div>
+                <small class="text-muted">{{ i.client?.numero }}</small>
+              </td>
+              <td>
+                <i class="bi bi-person-fill text-primary me-1"></i>
+                {{ i.zone_intervention?.contacts?.[0]?.nom_complet || '—' }}
+              </td>
+              <td>
+                {{ i.zone_intervention?.adresse?.adresse }}
+                <small class="text-muted d-block">
+                  {{ i.zone_intervention?.adresse?.code_postal }} {{ i.zone_intervention?.adresse?.ville }}
+                  · Bât. {{ i.zone_intervention?.adresse?.batiment }}
+                  · Étage {{ i.zone_intervention?.adresse?.etage }}
+                </small>
+              </td>
+              <td><i class="bi bi-calendar-event me-1 text-muted"></i>{{ i.date_cloture_estimee | date:'dd/MM/yyyy' }}</td>
+              <!-- <td class="text-center">
+                <span class="badge rounded-pill px-3"
+                      [ngClass]="{
+                        'bg-warning text-dark': i.etat === 'en_cours',
+                        'bg-success': i.etat === 'terminee',
+                        'bg-secondary': i.etat !== 'en_cours' && i.etat !== 'terminee'
+                      }">
+                  {{ i.etat | titlecase }}
+                </span>
+              </td> -->
+            </tr>
+            <tr *ngIf="interventions.length === 0">
+              <td colspan="7" class="text-center text-muted py-4">
+                🛠️ Aucune intervention trouvée pour le moment. Vous pouvez en créer une nouvelle.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

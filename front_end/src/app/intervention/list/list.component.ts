@@ -149,9 +149,22 @@ export class ListComponent implements OnInit {
     }
   }
 
-
   onModalClose() {
     this.selectedIntervention = null;
+  }
+
+  /**
+   * Transforme le tableau de techniciens en une chaîne de caractères lisible
+   * pour l'attribut 'title' (infobulle au survol)
+   */
+  getTechNames(techniciens: any[]): string {
+    if (!techniciens || techniciens.length === 0) {
+      return 'Aucun technicien assigné';
+    }
+    // Crée une liste : "Idomnis Iste, Et voluptatem Sapiente..."
+    return techniciens
+      .map(t => `${t.prenom} ${t.nom}`)
+      .join(', ');
   }
 
 }

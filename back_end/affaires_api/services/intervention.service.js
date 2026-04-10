@@ -10,111 +10,71 @@ class InterventionService {
    * 🔹 Créer une nouvelle intervention
    */
   // Service
+  // Dans votre Service
   static async apiCreate(data) {
-    const safeData = {
-      numero: Number(data.numero || 0),
-      titre: data.titre || '',
-      type_id: data.type_id || '',
-      description: data.description || '',
-
-      client_id: data.client_id != null ? Number(data.client_id) : null,
-      zone_intervention_client_id: data.zone_intervention_client_id != null ? Number(data.zone_intervention_client_id) : null,
-      type_client_zone_intervention: data.type_client_zone_intervention || '',
-
-      priorite: data.priorite || '',
-      etat: data.etat || '',
-
-      date_butoir_realisation: data.date_butoir_realisation || null,
-      date_cloture_estimee: data.date_cloture_estimee || null,
-
-      mots_cles: Array.isArray(data.mots_cles) ? JSON.stringify(data.mots_cles) : (data.mots_cles || ''),
-
-      montant_intervention: Number(data.montant_intervention || 0),
-      montant_main_oeuvre: Number(data.montant_main_oeuvre || 0),
-      montant_fournitures: Number(data.montant_fournitures || 0),
-
-      referents: Array.isArray(data.referents) ? data.referents.map(Number) : [],
-
-      createur_id: data.createur_id != null ? Number(data.createur_id) : null
-    };
-
     const connection = await pool.getConnection();
 
     try {
-      await connection.beginTransaction();
+        await connection.beginTransaction();
 
-      const insertQuery = `
-      INSERT INTO intervention (
-        numero,
-        titre,
-        type_id,
-        description,
-        client_id,
-        zone_intervention_client_id,
-        type_client_zone_intervention,
-        priorite,
-        etat,
-        date_butoir_realisation,
-        date_cloture_estimee,
-        mots_cles,
-        montant_intervention,
-        montant_main_oeuvre,
-        montant_fournitures,
-        createur_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+        const insertQuery = `
+            INSERT INTO intervention (
+                numero, titre, type_id, description,
+                client_id, zone_intervention_client_id, type_client_zone_intervention,
+                priorite, etat, date_butoir_realisation, date_cloture_estimee,
+                mots_cles, montant_intervention, montant_main_oeuvre, montant_fournitures,
+                createur_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
 
-      const values = [
-        safeData.numero,
-        safeData.titre,
-        safeData.type_id,
-        safeData.description,
+        const values = [
+            data.numero,
+            data.titre,
+            data.type_id,
+            data.description,
+            data.client_id,
+            data.zone_intervention_client_id,
+            data.type_client_zone_intervention,
+            data.priorite,
+            data.etat,
+            data.date_butoir_realisation,
+            data.date_cloture_estimee,
+            data.mots_cles,
+            data.montant_intervention,
+            data.montant_main_oeuvre,
+            data.montant_fournitures,
+            data.createur_id
+        ];
 
-        safeData.client_id,
-        safeData.zone_intervention_client_id,
-        safeData.type_client_zone_intervention,
+        const [result] = await connection.query(insertQuery, values);
+        const interventionId = result.insertId;
 
-        safeData.priorite,
-        safeData.etat,
-        safeData.date_butoir_realisation,
-        safeData.date_cloture_estimee,
+        // Insertion des référents dans la table de liaison
+        if (data.referents && data.referents.length > 0) {
+            // Format spécifique pour mysql2 : un tableau de tableaux [ [col1, col2, col3], [...] ]
+            const refValues = data.referents.map(refId => [
+                interventionId,
+                refId,
+                data.createur_id
+            ]);
 
-        safeData.mots_cles,
-        safeData.montant_intervention,
-        safeData.montant_main_oeuvre,
-        safeData.montant_fournitures,
+            const refQuery = `INSERT INTO intervention_referent (intervention_id, referent_id, createur_id) VALUES ?`;
+            
+            // On passe [refValues] à l'intérieur d'un tableau
+            await connection.query(refQuery, [refValues]);
+        }
 
-        safeData.createur_id
-      ];
-
-      const [result] = await connection.query(insertQuery, values);
-      const interventionId = result.insertId;
-
-      if (safeData.referents.length > 0) {
-        const refValues = safeData.referents.map(refId => [
-          interventionId,
-          refId,
-          safeData.createur_id
-        ]);
-
-        await connection.query(
-          `INSERT INTO intervention_referent (intervention_id, referent_id, createur_id) VALUES ?`,
-          [refValues]
-        );
-      }
-
-      await connection.commit();
-      return { id: interventionId };
+        await connection.commit();
+        return { id: interventionId };
 
     } catch (error) {
-      await connection.rollback();
-      console.error('❌ Erreur création intervention:', error);
-      throw error;
+        await connection.rollback();
+        console.error('❌ Service Error (Intervention):', error);
+        throw error;
     } finally {
-      connection.release();
+        connection.release();
     }
-  }
-
+}
 
   static async apiGetAllPaginated({ page = 1, limit = 10, search = '', userId }) {
     try {
@@ -147,9 +107,9 @@ class InterventionService {
       const sql = `
       SELECT SQL_CALC_FOUND_ROWS
         i.*,
-        it.libelle AS type_intervention   -- <-- ajout type_intervention
+        it.libelle AS type_intervention
       FROM intervention i
-      LEFT JOIN intervention_type it ON it.id = i.type_id  -- <-- jointure
+      LEFT JOIN intervention_type it ON it.id = i.type_id
       ${whereClause}
       ORDER BY i.id DESC
       LIMIT ${limit} OFFSET ${offset}
@@ -160,35 +120,74 @@ class InterventionService {
       /* ===================== TOTAL ===================== */
       const [[{ total }]] = await pool.query(`SELECT FOUND_ROWS() AS total`);
 
-      /* ===================== REFERENTS & TECHNICIENS ===================== */
+      /* ===================== DÉTAILS PAR INTERVENTION ===================== */
       for (const intervention of rows) {
         const interventionId = intervention.id;
+        const clientId = intervention.client_id ?? null;
+        const equipeId = intervention.equipe_id ?? null;
 
+        // 1. Référents
         const [referents] = await pool.query(
-          `
-        SELECT r.id, r.nom, r.prenom, r.email, r.telephone
-        FROM referent r
-        JOIN intervention_referent ir ON r.id = ir.referent_id
-        WHERE ir.intervention_id = ?
-        `,
+          `SELECT r.id, r.nom, r.prenom, r.email, r.telephone
+         FROM referent r
+         JOIN intervention_referent ir ON r.id = ir.referent_id
+         WHERE ir.intervention_id = ?`,
           [interventionId]
         );
+        intervention.referents = referents || [];
+        intervention.referent_ids = (referents || []).map(r => r.id);
 
+        // 2. Techniciens individuels
         const [techniciens] = await pool.query(
-          `
-        SELECT t.id, t.nom, t.prenom, it.role
-        FROM technicien t
-        JOIN intervention_technicien it ON t.id = it.id_technicien
-        WHERE it.id_intervention = ?
-        `,
+          `SELECT t.id, t.nom, t.prenom, it.role
+         FROM technicien t
+         JOIN intervention_technicien it ON t.id = it.id_technicien
+         WHERE it.id_intervention = ?`,
           [interventionId]
         );
+        intervention.techniciens = techniciens || [];
 
-        intervention.referents = referents;
-        intervention.referent_ids = referents.map(r => r.id);
-        intervention.techniciens = techniciens;
+        // 3. Client (Ajout)
+        intervention.client = null;
+        if (clientId) {
+          try {
+            intervention.client = await ClientsService.getRecordDetails(clientId);
+          } catch (err) {
+            console.warn(`Client ${clientId} introuvable pour l'intervention ${interventionId}`);
+          }
+        }
 
-        // si type_intervention est null, mettre "Non défini"
+        // 4. Équipe et Chef (Ajout)
+        intervention.equipe = null;
+        if (equipeId) {
+          const [equipeRows] = await pool.execute(
+            `SELECT 
+            eq.id AS equipeId, eq.nom AS equipeNom, eq.description AS equipeDescription, eq.chefId,
+            chef.nom AS chefNom, chef.prenom AS chefPrenom, chef.telephone AS chefTelephone, chef.email AS chefEmail
+          FROM equipe_technicien eq
+          LEFT JOIN technicien chef ON chef.id = eq.chefId
+          WHERE eq.id = ?`,
+            [equipeId]
+          );
+
+          if (equipeRows.length > 0) {
+            const e = equipeRows[0];
+            intervention.equipe = {
+              id: e.equipeId,
+              nom: e.equipeNom,
+              description: e.equipeDescription,
+              chef: e.chefId ? {
+                id: e.chefId,
+                nom: e.chefNom,
+                prenom: e.chefPrenom,
+                telephone: e.chefTelephone,
+                email: e.chefEmail
+              } : null
+            };
+          }
+        }
+
+        // Formatage final
         intervention.type_intervention = intervention.type_intervention || 'Non défini';
       }
 

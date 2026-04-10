@@ -289,7 +289,7 @@ class AffaireService {
   //   }
   // }
 
-  static async apiGetAllPaginated({ page = 1, limit = 10, search = '', userId }) {
+  /*static async apiGetAllPaginated({ page = 1, limit = 10, search = '', userId }) {
   try {
     if (!userId) throw new Error('userId manquant');
 
@@ -361,7 +361,113 @@ class AffaireService {
     console.error('Erreur apiGetAllPaginated:', err);
     throw err;
   }
+}*/
+
+   static async apiGetAllPaginated({ page = 1, limit = 10, search = '', userId }) {
+  try {
+    if (!userId) throw new Error('userId manquant');
+
+    page = Number(page);
+    limit = Number(limit);
+    const offset = (page - 1) * limit;
+
+    let whereClause = `WHERE a.createur_id = ?`;
+    const params = [userId];
+
+    if (search && search.trim() !== '') {
+      whereClause += ` AND (a.reference LIKE ? OR a.titre LIKE ? OR p.nom_complet LIKE ? OR ag.nom_agence LIKE ? OR o.nom_entreprise LIKE ?)`;
+      const like = `%${search}%`;
+      params.push(like, like, like, like, like);
+    }
+
+    const sql = `
+  SELECT SQL_CALC_FOUND_ROWS 
+    a.id AS affaireId,
+    a.reference,
+    a.titre,
+    a.dateDebut,
+    a.dateFin,
+    COALESCE(p.nom_complet, ag.nom_agence, o.nom_entreprise, 'Client inconnu') AS nomClient,
+    e.id AS equipeId,
+    e.nom AS equipeNom,
+    
+    -- Sous-requête techniciens (déjà agrégée, donc OK)
+    (
+      SELECT GROUP_CONCAT(DISTINCT 
+        CASE 
+          WHEN t_direct.id IS NOT NULL THEN CONCAT(t_direct.prenom, ' ', t_direct.nom)
+          ELSE CONCAT(tm.prenom, ' ', tm.nom)
+        END 
+        SEPARATOR ', '
+      )
+      FROM affaire a2
+      LEFT JOIN technicien t_direct ON a2.technicienId = t_direct.id
+      LEFT JOIN technicien_equipe te ON a2.equipeTechnicienId = te.equipeId
+      LEFT JOIN technicien tm ON te.technicienId = tm.id
+      WHERE a2.id = a.id
+    ) AS techniciensNoms,
+
+    -- Sous-requête fichiers (déjà agrégée, donc OK)
+    IFNULL(
+      (SELECT JSON_ARRAYAGG(
+        JSON_OBJECT(
+          'id', f.id,
+          'nom', f.nom,
+          'chemin', f.chemin,
+          'type', f.type
+        )
+      ) FROM fichier f WHERE f.idAffaire = a.id), 
+      JSON_ARRAY()
+    ) AS fichiersJoints
+
+  FROM affaire a
+  LEFT JOIN client c ON a.client_id = c.id
+  LEFT JOIN particulier p ON p.client_id = c.id
+  LEFT JOIN agence ag ON ag.client_id = c.id
+  LEFT JOIN organisation o ON o.client_id = c.id
+  LEFT JOIN equipe_technicien e ON a.equipeTechnicienId = e.id
+
+  ${whereClause}
+  
+  /* Correction ici : On groupe par toutes les colonnes sélectionnées */
+  GROUP BY 
+    a.id, 
+    a.reference, 
+    a.titre, 
+    a.dateDebut, 
+    a.dateFin, 
+    p.nom_complet, 
+    ag.nom_agence, 
+    o.nom_entreprise, 
+    e.id, 
+    e.nom
+    
+  ORDER BY a.id DESC
+  LIMIT ? OFFSET ?
+`;
+
+    params.push(limit, offset);
+    const [rows] = await pool.query(sql, params);
+    
+    // Récupération du total pour la pagination
+    const [[{ total }]] = await pool.query(`SELECT FOUND_ROWS() AS total`);
+
+    const data = rows.map(affaire => ({
+      ...affaire,
+      // On transforme la chaîne GROUP_CONCAT en tableau propre
+      listeTechniciens: affaire.techniciensNoms ? [...new Set(affaire.techniciensNoms.split(', '))] : [],
+      // S'assurer que fichiersJoints est bien parsé s'il arrive en string (selon driver DB)
+      fichiersJoints: typeof affaire.fichiersJoints === 'string' ? JSON.parse(affaire.fichiersJoints) : affaire.fichiersJoints
+    }));
+
+    return { total, page, limit, data };
+  } catch (err) {
+    console.error('Erreur apiGetAllPaginated:', err);
+    throw err;
+  }
 }
+
+
 
   /**
    * 🔹 Modifier une affaire

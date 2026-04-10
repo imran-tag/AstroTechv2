@@ -1,231 +1,265 @@
-<!-- ================= PAGE HEADER ================= -->
-<div class="page-header mb-3">
-  <h3 class="page-title">Affaires</h3>
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a [routerLink]="['/affaires/list']">Affaires</a>
-      </li>
-      <li class="breadcrumb-item active">Liste des affaires</li>
-    </ol>
-  </nav>
+<div class="row mb-4 align-items-center">
+  <div class="col-md-6">
+    <h5 class="fw-bold text-dark mb-1">Dossiers d'Affaires</h5>
+    <p class="text-muted small mb-0">Sélectionnez une tuile pour gérer le dossier.</p>
+  </div>
+  <div class="col-md-6 text-md-end mt-2 mt-md-0">
+    <button class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold border-0" (click)="goToAddAffaire()">
+      <i class="mdi mdi-plus me-1"></i> Nouveau dossier
+    </button>
+  </div>
 </div>
 
-<!-- ================= AJOUT AFFAIRE ================= -->
-<button class="btn btn-sm btn-gradient-success mb-3" (click)="goToAddAffaire()">
-  ➕ Nouvelle affaire
-</button>
-
-<div class="row">
-
-
-
-  <!-- ================= TABLEAU ================= -->
-  <div class="col-md-7 mb-3">
-    <!-- ================= RECHERCHE ================= -->
-    <div class="mb-3 position-relative">
-      <input type="text" class="form-control ps-5" placeholder="Rechercher ..."
-        [(ngModel)]="searchTerm" (keyup)="searchAffaires()" />
-      <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
-        🔍
-      </span>
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="mb-3">
+      <div class="input-group bg-white rounded-3 shadow-sm border-0 px-2">
+        <span class="input-group-text bg-transparent border-0"><i class="mdi mdi-magnify text-muted"></i></span>
+        <input type="text" class="form-control border-0 py-2 shadow-none" placeholder="Rechercher..."
+          [(ngModel)]="searchTerm" (keyup)="searchAffaires()">
+      </div>
     </div>
 
+    <div class="row g-2 overflow-auto px-1 py-1" style="max-height: 700px; scrollbar-width: thin;">
+      <div class="col-xl-3 col-md-4 col-6" *ngFor="let a of affaires">
+        <div (click)="selectAffaire(a)" class="card h-100 border-0 shadow-xs rounded-3 transition-all affaire-card"
+          [class.is-selected]="selectedAffaire?.affaireId === a.affaireId"
+          style="cursor: pointer; border-left: 3px solid #3b82f6 !important;">
 
-    <table class="table table-bordered table-hover" *ngIf="affaires.length">
-      <thead class="table-light">
-        <tr>
-          <th>Référence</th>
-          <th>Titre</th>
-          <th>Client</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of affaires" (click)="selectAffaire(a)" style="cursor:pointer"
-          [class.table-secondary]="selectedAffaire?.affaireId === a.affaireId">
-          <td>{{ a.reference }}</td>
-          <td>{{ a.titre }}</td>
-          <td>{{ a.nomClient }}</td>
-        </tr>
-      </tbody>
-    </table>
+          <div class="card-body p-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge bg-light text-primary xx-small fw-bold px-2 py-1">
+                {{ a.reference }}
+              </span>
+              <div *ngIf="a.listeTechniciens?.length" class="text-muted">
+                <i class="fa fa-wrench" style="font-size: 0.7rem;"></i>
+                <span class="xx-small ms-1">{{ a.listeTechniciens.length }}</span>
+              </div>
+            </div>
 
-    <div *ngIf="!affaires.length" class="alert alert-secondary">
-      📂 Aucune affaire n’est disponible pour le moment. Vous pouvez en créer une nouvelle.
-    </div>
+            <h6 class="fw-bold mb-1 text-truncate text-dark" style="font-size: 0.75rem; letter-spacing: -0.2px;">
+              {{ a.titre }}
+            </h6>
 
-    <!-- ================= PAGINATION ================= -->
-    <nav *ngIf="total > limit" class="mt-3">
-      <ul class="pagination justify-content-center">
-        <li class="page-item" [class.disabled]="page === 1">
-          <button class="page-link" (click)="changePage(page - 1)">Précédent</button>
-        </li>
+            <div class="d-flex align-items-center text-muted" style="font-size: 0.68rem;">
+              <i class="fa fa-building-o me-1 opacity-50"></i>
+              <span class="text-truncate fw-medium">{{ a.nomClient }}</span>
+            </div>
 
-        <li class="page-item" *ngFor="let p of totalPages" [class.active]="p === page">
-          <button class="page-link" (click)="changePage(p)">{{ p }}</button>
-        </li>
-
-        <li class="page-item" [class.disabled]="page === totalPages.length">
-          <button class="page-link" (click)="changePage(page + 1)">Suivant</button>
-        </li>
-      </ul>
-    </nav>
-  </div>
-
-
-  <!-- ================= DETAILS ================= -->
-  <div class="col-md-5">
-
-    <div *ngIf="selectedAffaire; else noSelection" class="card shadow-sm">
-
-      <!-- ================= HEADER – BARRE D’ACTIONS ================= -->
-      <div class="card-header bg-white border-bottom">
-
-        <!-- Ligne titre -->
-        <div class="mb-2">
-          <h5 class="mb-0">{{ selectedAffaire.titre }}</h5>
-          <small class="text-muted">
-            Client : {{ selectedAffaire.nomClient }}
-          </small>
-        </div>
-
-        <!-- Barre actions -->
-        <div class="d-flex justify-content-between align-items-center bg-light rounded p-2">
-
-          <button class="btn btn-success btn-sm f-13" (click)="goToAddLinkedAffaire(selectedAffaire)">
-            ➕ Créer une intervention
-          </button>
-
-          <div class="d-flex gap-1">
-            <button class="btn btn-outline-primary btn-sm f-13" (click)="goToEditAffaire(selectedAffaire)">
-              ✏ Modifier
-            </button>
-
-            <button class="btn btn-outline-danger btn-sm f-13" (click)="deleteAffaire(selectedAffaire.affaireId)">
-              🗑 Supprimer
-            </button>
+            <div class="mt-2 pt-1 border-top d-flex justify-content-between align-items-center">
+              <span class="xx-small text-muted italic">MAJ: {{ today | date:'dd/MM' }}</span>
+              <i class="fa fa-circle text-success" style="font-size: 5px;"></i>
+            </div>
           </div>
-
         </div>
       </div>
+    </div>
 
-      <!-- ================= BODY ================= -->
-      <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+      <div class="text-muted" style="font-size: 0.75rem;">
+        <span class="fw-bold text-dark">{{ (page - 1) * limit + 1 }}-{{ page * limit > total ? total : page * limit
+          }}</span>
+        sur <span class="fw-bold">{{ total }}</span>
+      </div>
 
-        <!-- ================= INFOS ================= -->
-        <div class="border-bottom pb-3 mb-3">
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" [class.disabled]="page === 1">
+            <a class="page-link border-0 shadow-sm rounded-2 me-1" (click)="changePage(page - 1)"
+              style="cursor: pointer;">
+              <i class="mdi mdi-chevron-left"></i>
+            </a>
+          </li>
+          <li class="page-item active">
+            <span class="page-link border-0 shadow-sm rounded-2 me-1 bg-primary px-2">{{ page }}</span>
+          </li>
+          <li class="page-item" [class.disabled]="page * limit >= total">
+            <a class="page-link border-0 shadow-sm rounded-2" (click)="changePage(page + 1)" style="cursor: pointer;">
+              <i class="mdi mdi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
 
-          <p>
-            <strong>Client :</strong>
-            <span class="text-info">{{ selectedAffaire.nomClient }}</span>
-          </p>
+  <div class="col-lg-4">
+    <div *ngIf="selectedAffaire; else noSelection" class="card border-0 shadow-lg rounded-4 sticky-top"
+      style="top: 20px;">
 
-          <div *ngIf="selectedAffaire.referents?.length">
-            <span class="badge bg-warning text-dark">Référents</span>
-            <ul>
-              <li *ngFor="let r of selectedAffaire.referents">
-                {{ r.prenom }} {{ r.nom }} – {{ r.email }}
+      <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <h5 class="fw-bold text-dark mb-0 text-truncate">{{ selectedAffaire.titre }}</h5>
+
+          <div class="dropdown">
+            <button class="btn btn-link text-muted p-0 border-0" type="button" (click)="toggleMenu()">
+              <i class="mdi mdi-dots-vertical fs-5"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm p-1" [class.show]="isMenuOpen"
+              (mouseleave)="isMenuOpen = false" 
+              [style.visibility]="isMenuOpen ? 'visible' : 'hidden'" [style.opacity]="isMenuOpen ? '1' : '0'">
+              <li>
+                <a class="dropdown-item rounded-2 small" (click)="goToEditAffaire(selectedAffaire)">
+                  <i class="mdi mdi-pencil me-2"></i> Editer
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item rounded-2 small text-danger" (click)="deleteAffaire(selectedAffaire.affaireId)">
+                  <i class="mdi mdi-trash-can me-2"></i> Supprimer
+                </a>
               </li>
             </ul>
           </div>
 
-          <div *ngIf="selectedAffaire.technicienId">
-            <span class="badge bg-success">Technicien</span>
-            <p class="mb-1">
-              {{ selectedAffaire.technicienPrenom }}
-              {{ selectedAffaire.technicienNom }}
-            </p>
-          </div>
-
-          <div *ngIf="selectedAffaire.equipeId">
-            <span class="badge bg-secondary">Équipe</span>
-            <p class="mb-0">{{ selectedAffaire.equipeNom }}</p>
-          </div>
-
-          <div *ngIf="selectedAffaire.chefId">
-            <span class="badge bg-danger">Chef</span>
-            <p class="mb-1">
-              {{ selectedAffaire.chefPrenom }}
-              {{ selectedAffaire.chefNom }}
-            </p>
-          </div>
-
-          <p class="mt-2">
-            <strong>Dates :</strong>
-            {{ selectedAffaire.dateDebut | date:'shortDate' }} –
-            {{ selectedAffaire.dateFin | date:'shortDate' }}
-          </p>
-
-          <p>
-            <strong>Durée :</strong>
-            {{ selectedAffaire.dureePrevueHeures || 0 }}h
-            {{ selectedAffaire.dureePrevueMinutes || 0 }}m
-          </p>
-
-          <p class="mb-1"><strong>Mémo :</strong></p>
-          <p class="bg-light p-2 rounded">
-            {{ selectedAffaire.memo || '-' }}
-          </p>
         </div>
 
-        <!-- ================= FICHIERS ================= -->
-        <div>
-          <span class="badge bg-info text-dark mb-2">Fichiers</span>
-
-          <div class="border rounded p-2 mb-2 d-flex align-items-center gap-2">
-            <button class="btn btn-outline-primary btn-sm" (click)="fileInput.click()">
-              📂 Choisir
+        <ul class="nav nav-tabs nav-fill border-0 bg-light rounded-3 p-1" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active border-0 rounded-3 small fw-bold py-2" id="info-tab" data-bs-toggle="tab"
+              data-bs-target="#info-pane" type="button" role="tab">
+              <i class="mdi mdi-information-outline me-1"></i> Infos
             </button>
-
-            <small class="text-muted flex-grow-1">
-              {{ newFiles.length ? newFiles.length + ' fichier(s)' : 'Aucun fichier' }}
-            </small>
-
-            <button class="btn btn-success btn-sm" [disabled]="!newFiles.length" (click)="uploadFiles()">
-              📤 Upload
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link border-0 rounded-3 small fw-bold py-2" id="files-tab" data-bs-toggle="tab"
+              data-bs-target="#files-pane" type="button" role="tab">
+              <i class="mdi mdi-attachment me-1"></i> Fichiers
+              <span class="badge bg-primary ms-1" style="font-size: 0.6rem;">{{ selectedAffaire.fichiersJoints?.length
+                || 0 }}</span>
             </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-body p-4 tab-content">
+
+        <div class="tab-pane fade show active" id="info-pane" role="tabpanel">
+          <div class="mb-4">
+            <label class="text-muted fw-bold small mb-2 d-block">DÉTAILS CLIENT</label>
+            <div class="p-3 bg-light rounded-3 border-start border-primary border-4">
+              <div class="fw-bold text-dark">{{ selectedAffaire.nomClient }}</div>
+              <small class="text-muted">Référence dossier : {{ selectedAffaire.reference }}</small>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="text-muted fw-bold small mb-2 d-block">INTERVENANTS</label>
+            <div class="d-flex flex-wrap gap-2">
+              <span *ngFor="let tech of selectedAffaire.listeTechniciens"
+                class="badge bg-light text-dark border px-2 py-1 fw-medium">
+                <i class="mdi mdi-account-circle text-primary me-1"></i>
+                {{ tech }}
+              </span>
+
+
+              <div *ngIf="!selectedAffaire.listeTechniciens?.length" class="text-muted small italic">
+                Aucun technicien assigné.
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="text-muted fw-bold small mb-2 d-block">PLANIFICATION</label>
+            <div class="d-flex align-items-center mb-2">
+              <i class="mdi mdi-calendar-check text-success me-2"></i>
+              <span class="small">Début : <strong>{{ selectedAffaire.dateDebut | date:'dd/MM/yyyy' }}</strong></span>
+            </div>
+            <div class="d-flex align-items-center">
+              <i class="mdi mdi-calendar-clock text-danger me-2"></i>
+              <span class="small">Échéance : <strong>{{ selectedAffaire.dateFin | date:'dd/MM/yyyy' }}</strong></span>
+            </div>
+          </div>
+
+          <button class="btn btn-success w-100 py-2 rounded-3 fw-bold shadow-sm mt-2"
+            (click)="goToAddLinkedAffaire(selectedAffaire)">
+            <i class="mdi mdi-hammer-wrench me-2"></i> INTERVENTION
+          </button>
+        </div>
+
+        <div class="tab-pane fade" id="files-pane" role="tabpanel">
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="fw-bold small mb-0 text-uppercase tracking-wide">Transférer un document</h6>
+            </div>
+
+            <div
+              class="border border-2 border-dashed rounded-3 p-4 text-center bg-light hover-bg-primary-subtle transition-all"
+              (click)="fileInput.click()" style="cursor: pointer; border-color: #dee2e6 !important;">
+              <i class="mdi mdi-cloud-upload-outline display-6 text-primary mb-2"></i>
+              <p class="small fw-bold mb-1">Cliquez pour ajouter</p>
+              <span class="text-muted" style="font-size: 0.7rem;">PDF, Images (Max 10Mo)</span>
+            </div>
 
             <input type="file" #fileInput class="d-none" multiple (change)="onFileSelected($event)">
           </div>
 
-          <ul *ngIf="newFiles.length" class="list-group mb-2">
-            <li *ngFor="let f of newFiles; let i = index" class="list-group-item d-flex justify-content-between">
-              {{ f.name }}
-              <button class="btn btn-sm btn-outline-danger" (click)="removeNewFile(i)">
-                Supprimer
-              </button>
-            </li>
-          </ul>
-
-          <ul *ngIf="selectedAffaire.fichiers?.length" class="list-group">
-            <li *ngFor="let f of selectedAffaire.fichiers" class="list-group-item d-flex justify-content-between">
-              {{ f.nom }}
-
-              <div class="d-flex gap-1">
-                <a class="btn btn-sm btn-outline-primary" [href]="url_upload + '/' + f.chemin" target="_blank">
-                  Voir
-                </a>
-
-                <button class="btn btn-sm btn-outline-danger" (click)="removeUploadedFile(f.id)">
-                  Supprimer
-                </button>
+          <div *ngIf="newFiles.length" class="mb-4 animate__animated animate__fadeIn">
+            <div class="card border-primary bg-primary bg-opacity-10 shadow-sm">
+              <div class="card-body p-2">
+                <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                  <span class="small fw-bold text-primary">{{ newFiles.length }} prêt(s) à l'envoi</span>
+                  <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" (click)="uploadFiles()">
+                    <i class="mdi mdi-check-all me-1"></i> Envoyer
+                  </button>
+                </div>
+                <div class="vstack gap-1">
+                  <div *ngFor="let f of newFiles; let i = index"
+                    class="d-flex justify-content-between bg-white p-2 rounded-2 small shadow-xs">
+                    <span class="text-truncate" style="max-width: 180px;">{{ f.name }}</span>
+                    <i class="mdi mdi-close-circle text-danger cursor-pointer" (click)="removeNewFile(i)"></i>
+                  </div>
+                </div>
               </div>
-            </li>
-          </ul>
+            </div>
+          </div>
 
-          <p *ngIf="!selectedAffaire.fichiers?.length" class="text-muted mt-2">
-            Aucun fichier attaché
-          </p>
+          <div class="pt-2">
+            <h6 class="fw-bold small mb-3 text-muted">DOCUMENTS DU DOSSIER ({{ selectedAffaire.fichiersJoints?.length ||
+              0 }})</h6>
+
+            <div class="vstack gap-2" style="max-height: 250px; overflow-y: auto;">
+              <div *ngFor="let f of selectedAffaire.fichiersJoints"
+                class="p-2 border rounded-3 d-flex align-items-center bg-white shadow-xs">
+                <div class="bg-light p-2 rounded me-2">
+                  <i class="mdi mdi-file-document-outline text-secondary"></i>
+                </div>
+                <div class="text-truncate flex-grow-1 small fw-medium">
+                  <div class="text-truncate">{{ f.nom }}</div>
+                  <div class="extra-small text-muted" style="font-size: 0.65rem;">{{ f.type }}</div>
+                </div>
+                <div class="d-flex gap-1">
+                  <a [href]="url_upload + '/' + f.chemin" target="_blank" class="btn btn-sm btn-link text-primary p-1">
+                    <i class="mdi mdi-download"></i>
+                  </a>
+                  <button class="btn btn-sm btn-link text-danger p-1" (click)="removeUploadedFile(f.id)">
+                    <i class="mdi mdi-delete-outline"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div *ngIf="!selectedAffaire.fichiersJoints?.length && !newFiles.length"
+                class="text-center py-4 bg-light rounded-3 border-dashed border-2">
+                <p class="text-muted small mb-0">Aucun document archivé.</p>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </div>
     </div>
 
     <ng-template #noSelection>
-      <div class="alert alert-secondary">
-        Sélectionnez une affaire pour voir les détails
+      <div
+        class="card border-0 shadow-sm p-5 text-center rounded-4 h-100 d-flex align-items-center justify-content-center bg-white border border-dashed border-2">
+        <div class="p-3 bg-light rounded-circle mb-3">
+          <i class="mdi mdi-cursor-default-click-outline display-6 text-muted"></i>
+        </div>
+        <h6 class="fw-bold">Sélectionnez une tuile</h6>
+        <p class="text-muted small">Cliquez sur une affaire à gauche pour voir les détails ou les fichiers.</p>
       </div>
     </ng-template>
-
   </div>
 </div>

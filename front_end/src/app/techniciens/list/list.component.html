@@ -1,91 +1,107 @@
-<!-- *** Titre *** -->
-<div class="page-header">
-    <h3 class="page-title">Technicien</h3>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Technicien</a></li>
-            <li class="breadcrumb-item active" aria-current="page">liste des techniciens</li>
+<div class="container-fluid mt-2 px-3">
+  <div class="page-header d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h5 class="fw-bold mb-0 text-dark">Techniciens</h5>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 xx-small">
+          <li class="breadcrumb-item"><a href="javascript:void(0)" class="text-decoration-none text-muted">RH</a></li>
+          <li class="breadcrumb-item active text-primary">Effectifs</li>
         </ol>
-    </nav>
-</div>
-
-<!-- *** Contenu *** -->
-<div class="row">
-    <div class="col-md-12">
-        <button type="button" class="btn btn-sm btn-gradient-success btn-fw mb-3" [routerLink]="['/techniciens/edit']">
-            ➕ Nouveau technicien
-        </button>
-
-        <!-- ================= RECHERCHE ================= -->
-        <div class="mb-3 position-relative w-50">
-            <input type="text" class="form-control ps-5" placeholder="Rechercher ..." [(ngModel)]="searchTerm"
-                (keyup)="searchTechniciens()" />
-            <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
-                🔍
-            </span>
-        </div>
-
-        <table class="table" *ngIf="techniciens?.length > 0; else noTechniciens">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Téléphone</th>
-                    <th>Email</th>
-                    <th>Mot de passe</th>
-                    <th>Spécialité</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let technicien of techniciens; let i = index">
-                    <td>{{technicien.nom}}</td>
-                    <td>{{technicien.prenom}}</td>
-                    <td>{{technicien.telephone}}</td>
-                    <td>{{technicien.email}}</td>
-                    <td>
-                        {{ technicien.showPassword ? technicien.pwd : '••••••••' }}
-                        <button type="button" class="btn btn-sm btn-outline-secondary border-0"
-                            (click)="togglePassword(technicien)">
-                            <i class="mdi" [ngClass]="technicien.showPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
-                        </button>
-                    </td>
-                    <td>{{technicien.specialite}}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning me-2" [routerLink]="['/techniciens/edit', technicien.id]">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" (click)="deleteTechnicien(technicien.id)">
-                            <i class="fa fa-trash-o"></i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- ================= PAGINATION ================= -->
-        <nav *ngIf="totalPages > 1" aria-label="Page navigation example">
-            <ul class="pagination justify-content-center mt-3">
-                <li class="page-item" [class.disabled]="currentPage === 1">
-                    <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
-                </li>
-
-                <li class="page-item" *ngFor="let page of [].constructor(totalPages); let idx = index"
-                    [class.active]="currentPage === idx + 1">
-                    <button class="page-link" (click)="changePage(idx + 1)">{{ idx + 1 }}</button>
-                </li>
-
-                <li class="page-item" [class.disabled]="currentPage === totalPages">
-                    <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
-                </li>
-            </ul>
-        </nav>
-
-        <ng-template #noTechniciens>
-            <div class="alert alert-secondary text-center">
-                😕 Aucun technicien n’est disponible. Vous pouvez en créer un nouveau.
-            </div>
-        </ng-template>
+      </nav>
     </div>
+    
+    <button class="btn btn-primary btn-xs rounded-pill px-3 shadow-sm border-0" [routerLink]="['/techniciens/edit']">
+      <i class="fa fa-plus-circle me-1"></i> Nouveau
+    </button>
+  </div>
 
+  <div class="card border-0 shadow-xs mb-3">
+    <div class="card-body p-2 px-3">
+      <div class="input-group align-items-center">
+        <i class="fa fa-search text-muted small"></i>
+        <input type="text" class="form-control border-0 shadow-none ps-2 py-0 x-small" 
+               placeholder="Rechercher nom, spécialité..." [(ngModel)]="searchTerm" (keyup)="searchTechniciens()" />
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-2" *ngIf="techniciens && techniciens.length > 0; else noTechniciens">
+    <div class="col-md-6 col-xl-4" *ngFor="let tech of techniciens">
+      <div class="card h-100 border-0 shadow-xs card-compact">
+        <div class="card-body p-2">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="d-flex align-items-center overflow-hidden">
+              <div class="avatar-sm-dense me-2 flex-shrink-0">
+                {{ tech.nom.charAt(0) | uppercase }}{{ tech.prenom.charAt(0) | uppercase }}
+              </div>
+              <div class="overflow-hidden">
+                <h6 class="fw-bold mb-0 text-dark text-truncate small">{{ tech.nom }} {{ tech.prenom }}</h6>
+                <span class="badge bg-soft-primary text-primary xx-small">{{ tech.specialite }}</span>
+              </div>
+            </div>
+            
+            <div class="dropdown">
+              <button class="btn btn-link text-muted p-0 shadow-none" type="button" (click)="tech.isOpen = !tech.isOpen">
+                <i class="fa fa-ellipsis-v small"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-1" [class.show]="tech.isOpen" (mouseleave)="tech.isOpen = false">
+                <li>
+                  <a class="dropdown-item d-flex align-items-center py-1 rounded-2" [routerLink]="['/techniciens/edit', tech.id]">
+                    <i class="fa fa-pencil text-warning me-2 xx-small"></i> <span class="x-small">Modifier</span>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item d-flex align-items-center py-1 rounded-2 text-danger" (click)="deleteTechnicien(tech.id)">
+                    <i class="fa fa-trash me-2 xx-small"></i> <span class="x-small">Supprimer</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="bg-light rounded p-2 mb-2">
+            <div class="xx-small text-dark mb-1 d-flex align-items-center">
+              <i class="fa fa-envelope-o text-muted me-2" style="width: 12px;"></i>
+              <span class="text-truncate">{{ tech.email }}</span>
+            </div>
+            <div class="xx-small text-dark d-flex align-items-center">
+              <i class="fa fa-phone text-muted me-2" style="width: 12px;"></i>
+              {{ tech.telephone }}
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center bg-soft-secondary rounded px-2 py-1">
+            <div class="xx-small">
+              <span class="text-muted me-1">ID:</span>
+              <code class="text-dark fw-bold">{{ tech.showPassword ? tech.pwd : '••••••••' }}</code>
+            </div>
+            <button class="btn btn-xs btn-white shadow-xs border py-0 px-1" (click)="togglePassword(tech)">
+              <i class="fa" [ngClass]="tech.showPassword ? 'fa-eye-slash' : 'fa-eye'" style="font-size: 10px;"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav *ngIf="totalPages > 1" class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link border-0 shadow-xs mx-1 rounded-circle" (click)="changePage(currentPage - 1)">‹</button>
+      </li>
+      <li class="page-item active">
+        <span class="page-link border-0 shadow-xs mx-1 rounded-circle bg-primary text-white">{{ currentPage }}</span>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link border-0 shadow-xs mx-1 rounded-circle" (click)="changePage(currentPage + 1)">›</button>
+      </li>
+    </ul>
+  </nav>
+
+  <ng-template #noTechniciens>
+    <div class="text-center py-5 bg-white rounded-3 shadow-xs mt-2">
+      <i class="fa fa-wrench fa-2x text-light mb-2"></i>
+      <p class="text-muted small">Aucun technicien trouvé.</p>
+    </div>
+  </ng-template>
 </div>

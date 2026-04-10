@@ -1,135 +1,158 @@
-<div class="container mt-3">
-
-  <!-- ================= PAGE HEADER ================= -->
-  <div class="page-header mb-3">
-    <h3 class="page-title mb-1">Référents</h3>
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="#">Référents</a></li>
-        <li class="breadcrumb-item">liste des référents</li>
-      </ol>
-    </nav>
+<div class="container-fluid mt-3 px-4">
+  <div class="page-header d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="fw-bold mb-0 text-dark">Référents</h4>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 small">
+          <li class="breadcrumb-item"><a href="javascript:void(0)" class="text-decoration-none text-muted">Référents</a></li>
+          <li class="breadcrumb-item active text-primary">Liste</li>
+        </ol>
+      </nav>
+    </div>
+    
+    <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm border-0" (click)="addReferent()">
+      <i class="fa fa-plus-circle me-1"></i> Nouveau référent
+    </button>
   </div>
 
-  <!-- ================= AJOUT AFFAIRE ================= -->
-  <button type="button" class="btn btn-sm btn-gradient-success mb-3" (click)="addReferent()">
-    ➕ Nouveau référent
-  </button>
-
-  <!-- ================= RECHERCHE ================= -->
-  <div class="mb-3 position-relative w-50">
-    <input type="text" class="form-control ps-5" placeholder="Rechercher ..." [(ngModel)]="searchTerm"
-      (keyup)="searchReferents()" />
-    <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
-      🔍
-    </span>
-  </div>
-
-
-  <div class="row g-3">
-    <!-- CHAQUE REFERENT DANS UNE CARD -->
-    <div class="col-md-6" *ngFor="let ref of referents">
-      <div class="card shadow-sm p-3 h-100">
-
-        <!-- HEADER CARD -->
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h5 class="mb-0">{{ ref.nom }} {{ ref.prenom }}</h5>
-          <div class="d-flex gap-1">
-            <!-- Bouton Edit -->
-            <button class="btn btn-sm btn-outline-warning" [routerLink]="['/referents/edit', ref.id]">
-              ✏️ Modifier
-            </button>
-            <!-- Bouton Supprimer -->
-            <button class="btn btn-sm btn-outline-danger" (click)="deleteReferent(ref.id)">
-              🗑 Supprimer
-            </button>
-          </div>
-        </div>
-
-        <!-- INFOS CONTACT -->
-        <p class="mb-2" style="font-size: 0.9rem;">
-          <strong>Email:</strong> {{ ref.email }}<br>
-          <strong>Téléphone:</strong> {{ ref.telephone }}
-        </p>
-
-        <!-- LIEN ULTRA DISCRET AVEC ICÔNES POUR VOIR / MASQUER LES FICHIERS -->
-        <a href="javascript:void(0)" class="small text-secondary mb-2 d-inline-block"
-          (click)="ref.showFiles = !ref.showFiles">
-          <i class="fa" [ngClass]="ref.showFiles ? 'fa-eye-slash' : 'fa-eye'"></i>
-          {{ ref.showFiles ? ' Masquer les fichiers' : ' Voir les fichiers' }}
-        </a>
-
-        <!-- FICHIERS UPLOADÉS -->
-        <div *ngIf="ref.showFiles">
-          <!-- AJOUT FICHIERS -->
-          <div class="mb-2">
-            <label class="form-label" style="font-size: 0.85rem;">Fichiers à ajouter</label>
-            <div class="border rounded p-2 d-flex align-items-center justify-content-between gap-2">
-
-              <button class="btn btn-outline-primary btn-sm" type="button" (click)="fileInput.click()">
-                📂 Choisir des fichiers
-              </button>
-
-              <div class="flex-grow-1 ms-2 text-truncate" style="max-width: 50%; font-size: 0.75rem;">
-                {{ newFilesNames }}
-              </div>
-
-              <button class="btn btn-success btn-sm ms-2" type="button" [disabled]="newFiles.length === 0"
-                (click)="uploadFiles(ref)">
-                📤 Upload
-              </button>
-
-              <input type="file" #fileInput class="d-none" multiple (change)="onFileSelected($event)" />
-            </div>
-
-            <!-- Fichiers sélectionnés avant upload -->
-            <ul class="list-group mt-2" *ngIf="newFiles.length > 0">
-              <li class="list-group-item d-flex justify-content-between align-items-center py-1"
-                *ngFor="let file of newFiles; let i = index">
-                {{ file.name }}
-                <button class="btn btn-sm btn-outline-danger" (click)="removeNewFile(i)">✕</button>
-              </li>
-            </ul>
-          </div>
-
-          <h6 style="font-size: 0.85rem;">Fichiers associés</h6>
-          <ul class="list-group" *ngIf="ref.fichiers?.length > 0">
-            <li class="list-group-item d-flex justify-content-between align-items-center"
-              *ngFor="let f of ref.fichiers">
-              <a [href]="url_upload + '/' + f.chemin" target="_blank">{{ f.nom }}</a>
-              <button class="btn btn-sm btn-outline-danger" (click)="removeUploadedFile(f.id, ref)">🗑</button>
-            </li>
-          </ul>
-          <div class="text-muted mt-2" *ngIf="!ref.fichiers?.length">
-            Aucun fichier associé
-          </div>
-        </div>
-
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-2 px-3">
+      <div class="input-group align-items-center">
+        <i class="fa fa-search text-muted"></i>
+        <input type="text" class="form-control border-0 shadow-none ps-2 py-0 x-small" 
+               placeholder="Rechercher par nom, email..." [(ngModel)]="searchTerm" (keyup)="searchReferents()" />
       </div>
     </div>
-
-    <!-- MESSAGE SI AUCUN REFERENT -->
-    <div *ngIf="!referents || referents.length === 0" class="alert alert-secondary text-center">
-      📭 Aucun référent trouvé pour le moment. Vous pouvez en créer un nouveau.
-    </div>
-
-    <!-- ================= PAGINATION ================= -->
-    <nav *ngIf="totalPages > 1" aria-label="Page navigation example">
-      <ul class="pagination justify-content-center mt-3">
-        <li class="page-item" [class.disabled]="currentPage === 1">
-          <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
-        </li>
-
-        <li class="page-item" *ngFor="let page of [].constructor(totalPages); let idx = index"
-          [class.active]="currentPage === idx + 1">
-          <button class="page-link" (click)="changePage(idx + 1)">{{ idx + 1 }}</button>
-        </li>
-
-        <li class="page-item" [class.disabled]="currentPage === totalPages">
-          <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
-        </li>
-      </ul>
-    </nav>
-
   </div>
+
+  <div class="row g-2">
+    <div class="col-md-6 col-xl-4" *ngFor="let ref of referents">
+      <div class="card h-100 border-0 shadow-sm card-compact">
+        
+        <div class="card-body p-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="d-flex align-items-center overflow-hidden">
+              <div class="avatar-sm-dense me-2 flex-shrink-0">
+                {{ ref.nom?.charAt(0) | uppercase }}{{ ref.prenom?.charAt(0) | uppercase }}
+              </div>
+              <div class="overflow-hidden">
+                <h6 class="fw-bold mb-0 text-dark text-truncate small">{{ ref.nom }} {{ ref.prenom }}</h6>
+                <span class="text-muted x-small">Contact principal</span>
+              </div>
+            </div>
+            
+            <!-- <div class="dropdown">
+              <button class="btn btn-link text-muted p-0 shadow-none" type="button" data-bs-toggle="dropdown">
+                <i class="fa fa-ellipsis-v"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 small">
+                <li><a class="dropdown-item text-warning" [routerLink]="['/referents/edit', ref.id]"><i class="fa fa-edit me-2"></i>Modifier</a></li>
+                <li><a class="dropdown-item text-danger" (click)="deleteReferent(ref.id)"><i class="fa fa-trash me-2"></i>Supprimer</a></li>
+              </ul>
+            </div> -->
+            <div class="dropdown">
+  <button type="button" class="btn btn-link text-muted p-0 shadow-none" 
+          (click)="ref.isOpen = !ref.isOpen">
+    <i class="fa fa-ellipsis-v"></i>
+  </button>
+  
+  <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-1" 
+    [class.show]="ref.isOpen"
+    (mouseleave)="ref.isOpen = false"
+    style="min-width: 140px; border-radius: 10px; margin-top: 0px;">
+  
+  <li class="mb-1">
+    <a class="dropdown-item d-flex align-items-center py-0 px-3 pt-2 rounded-2 text-dark transition-all" 
+       [routerLink]="['/referents/edit', ref.id]"
+       (click)="ref.isOpen = false">
+      <div class="icon-box bg-light-warning me-2">
+        <i class="fa fa-edit text-warning"></i>
+      </div>
+      <span class="small fw-medium">Modifier</span>
+    </a>
+  </li>
+
+  <li>
+    <a class="dropdown-item d-flex align-items-center py-2 px-3 pt-0 rounded-2 text-danger transition-all" 
+       (click)="deleteReferent(ref.id); ref.isOpen = false" 
+       style="cursor: pointer;">
+      <div class="icon-box bg-light-danger me-2">
+        <i class="fa fa-trash"></i>
+      </div>
+      <span class="small fw-medium">Supprimer</span>
+    </a>
+  </li>
+</ul>
+</div>
+          </div>
+
+          <div class="bg-light rounded p-2 mb-2">
+            <div class="x-small text-dark mb-1 d-flex align-items-center">
+              <i class="fa fa-envelope-o text-primary me-2" style="width: 15px;"></i>
+              <span class="text-truncate">{{ ref.email }}</span>
+            </div>
+            <div class="x-small text-dark d-flex align-items-center">
+              <i class="fa fa-phone text-success me-2" style="width: 15px;"></i>
+              {{ ref.telephone }}
+            </div>
+          </div>
+
+          <button class="btn btn-light btn-sm w-100 border-0 x-small text-muted mb-2" (click)="ref.showFiles = !ref.showFiles">
+            <i class="fa me-1" [ngClass]="ref.showFiles ? 'fa-chevron-up' : 'fa-folder-open-o'"></i>
+            {{ ref.showFiles ? 'Masquer les fichiers' : 'Gérer les fichiers (' + (ref.fichiers?.length || 0) + ')' }}
+          </button>
+
+          <div *ngIf="ref.showFiles" class="file-section border-top pt-2">
+            <div class="upload-zone mb-2">
+              <div class="d-flex gap-1">
+                <button class="btn btn-outline-primary btn-xs flex-grow-1" (click)="fileInput.click()">
+                  <i class="fa fa-paperclip"></i> Joindre
+                </button>
+                <button class="btn btn-success btn-xs" [disabled]="newFiles.length === 0" (click)="uploadFiles(ref)">
+                  <i class="fa fa-upload"></i>
+                </button>
+              </div>
+              <input type="file" #fileInput class="d-none" multiple (change)="onFileSelected($event)" />
+              
+              <div class="mt-2" *ngIf="newFiles.length > 0">
+                <div *ngFor="let file of newFiles; let i = index" class="pending-file d-flex justify-content-between align-items-center">
+                  <span class="x-small text-truncate" style="max-width: 80%;">{{ file.name }}</span>
+                  <i class="fa fa-times text-danger pointer" (click)="removeNewFile(i)"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="uploaded-list" *ngIf="ref.fichiers && ref.fichiers.length > 0">
+              <div *ngFor="let f of ref.fichiers" class="file-item d-flex justify-content-between align-items-center p-1 rounded">
+                <a [href]="url_upload + '/' + f.chemin" target="_blank" class="x-small text-decoration-none text-truncate flex-grow-1 me-2">
+                  <i class="fa fa-file-pdf-o text-danger me-1"></i> {{ f.nom }}
+                </a>
+                <i class="fa fa-trash-o text-muted pointer hover-danger" (click)="removeUploadedFile(f.id, ref)"></i>
+              </div>
+            </div>
+            <div class="text-center p-2" *ngIf="!ref.fichiers?.length && newFiles.length === 0">
+              <span class="x-small text-muted italic">Aucun document</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!referents || referents.length === 0" class="text-center py-5">
+    <i class="fa fa-users fa-3x text-light mb-3"></i>
+    <p class="text-muted">Aucun référent trouvé.</p>
+  </div>
+
+  <nav *ngIf="totalPages > 1" class="mt-4">
+    <ul class="pagination pagination-sm justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="changePage(currentPage - 1)">‹</button>
+      </li>
+      <li class="page-item active"><span class="page-link">{{ currentPage }}</span></li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="changePage(currentPage + 1)">›</button>
+      </li>
+    </ul>
+  </nav>
 </div>

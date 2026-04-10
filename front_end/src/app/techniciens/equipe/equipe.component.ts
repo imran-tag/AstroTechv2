@@ -5,20 +5,41 @@ import { SharedModule } from '../../_globale/shared/shared.module';
 import { RouterModule } from '@angular/router';
 import { TechnicienService } from '../../_services/techniciens/technicien.service';
 
+// --- AJOUT DES INTERFACES POUR LE TYPAGE ---
+interface Technicien {
+  id: number;
+  nom: string;
+  prenom: string;
+}
+
+// Assurez-vous que l'interface Technicien inclut le tableau
+interface Equipe {
+  id: number;
+  nom: string;
+  chef?: any;
+  techniciens: any[]; // On garantit que c'est un tableau
+}
+
+
+
 @Component({
+  standalone: true, // Assurez-vous que c'est bien standalone si vous utilisez imports directement
   imports: [SharedModule, RouterModule],
   selector: 'app-equipe',
   templateUrl: './equipe.component.html',
-  styleUrls: ['./equipe.component.css']  // <-- corrigé
+  styleUrls: ['./equipe.component.css']
 })
 export class EquipeComponent implements OnInit {
   formEquipe!: FormGroup;
-  techniciens: any = [];
-  equipes: any = [];
+  
+  // Typage précis au lieu de 'any'
+  techniciens: Technicien[] = [];
+  equipes: Equipe[] = [];
+  
   loading = false;
   message = '';
   currentPage = 1;
-  limit = 2;
+  limit = 9;
   total = 0;
   totalPages = 0;
   searchTerm = '';
@@ -39,7 +60,7 @@ export class EquipeComponent implements OnInit {
     this.formEquipe = this.fb.group({
       nomEquipe: ['', Validators.required],
       chefId: ['', Validators.required],
-      techniciensIds: [[], Validators.required] // liste de techniciens
+      techniciensIds: [[], Validators.required]
     });
   }
 
@@ -47,6 +68,7 @@ export class EquipeComponent implements OnInit {
     this.equipeService
       .apiGetAllWithPaginated(this.currentPage, this.limit, this.searchTerm)
       .subscribe((res: any) => {
+        // Mapping des données pour s'assurer de la structure attendue par le template
         this.equipes = res.data;
         this.total = res.total;
         this.totalPages = Math.ceil(this.total / this.limit);
@@ -60,22 +82,20 @@ export class EquipeComponent implements OnInit {
   }
 
   loadTechniciens() {
-    this.technicienService.getAll().subscribe(res => {
+    this.technicienService.getAll().subscribe((res: any) => {
       this.techniciens = res;
-    })
+    });
   }
 
   onSubmit() {
     if (this.formEquipe.invalid) {
-      // Show a warning message
-      alert("⚠️ Veuillez remplir tous les champs obligatoires avant de soumettre le formulaire !");
+      alert("⚠️ Veuillez remplir tous les champs obligatoires !");
       return;
     }
 
     this.loading = true;
     const formValue = this.formEquipe.value;
 
-    // Étape 1 : Créer l’équipe
     const equipeData = {
       nom: formValue.nomEquipe,
       chefId: formValue.chefId
@@ -84,45 +104,35 @@ export class EquipeComponent implements OnInit {
     this.equipeService.createEquipe(equipeData).subscribe({
       next: (equipe: any) => {
         const equipeId = equipe.data.id;
-        // Étape 2 : Ajouter les techniciens sélectionnés
         const ajoutPromises = formValue.techniciensIds.map((techId: number) =>
           this.equipeService.addTechnicienToEquipe(equipeId, techId).toPromise()
         );
 
         Promise.all(ajoutPromises).then(() => {
-          this.message = '✅ Équipe créée avec succès et techniciens affectés !';
+          this.message = '✅ Équipe créée avec succès !';
           this.formEquipe.reset();
           this.loadEquipes();
         }).catch(err => {
-          console.error('Erreur affectation techniciens', err);
-          this.message = '⚠️ Erreur lors de l’affectation des techniciens';
+          console.error(err);
+          this.message = '⚠️ Erreur lors de l’affectation';
         }).finally(() => this.loading = false);
       },
       error: (err) => {
-        console.error('Erreur création équipe', err);
-        this.message = '❌ Erreur lors de la création de l’équipe';
+        console.error(err);
+        this.message = '❌ Erreur création équipe';
         this.loading = false;
       }
     });
   }
 
-
   deleteEquipe(id: number) {
-    const confirmed = window.confirm('Voulez-vous vraiment supprimer cette équipe de techniciens ?');
-
-    if (confirmed) {
+    if (window.confirm('Voulez-vous vraiment supprimer cette équipe ?')) {
       this.equipeService.deleteEquipe(id).subscribe({
-        next: () => {
-          this.loadEquipes(); // Recharge la liste des équipes après suppression
-          console.log('Équipe supprimée avec succès !');
-          alert('Équipe supprimée avec succès !'); // Optionnel
-        },
-        error: (err) => {
-          console.error('Erreur lors de la suppression :', err);
-          alert('Impossible de supprimer cette équipe.');
-        }
+        next: () => this.loadEquipes(),
+        error: (err) => alert('Impossible de supprimer cette équipe.')
       });
     }
   }
 
+  
 }

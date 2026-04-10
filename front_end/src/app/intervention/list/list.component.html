@@ -11,115 +11,192 @@
   </nav>
 </div>
 
-<!-- ================= AJOUT INTERVENTION ================= -->
-<button class="btn btn-sm btn-gradient-success btn-sm mb-2 row" (click)="goToAddIntervention()">
-  ➕ Nouvelle intervention
-</button>
-
-<!-- ================= RECHERCHE ================= -->
-<div class="mb-2 position-relative w-50 row">
-  <input type="text" class="form-control ps-5 form-control-sm" placeholder="Rechercher ..." [(ngModel)]="searchTerm"
-    (keyup)="searchInterventions()" />
-  <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
-    🔍
-  </span>
+<div class="row mb-3">
+  <div class="col-12">
+    <button class="btn btn-sm btn-gradient-success" (click)="goToAddIntervention()">
+      <i class="fa fa-plus me-1"></i> Nouvelle intervention
+    </button>
+  </div>
 </div>
 
-<!-- ================= LISTE ================= -->
 <div class="row">
-  <div class="card" *ngIf="interventions.length">
-    <div class="card-body">
+  <div class="col-12" *ngIf="interventions.length">
+    <div class="card shadow-sm">
 
-      <table class="table table-striped text-center">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Titre</th>
-            <th>Type</th>
-            <th>État</th>
-            <th>Date création</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let i of interventions">
-
-            <td>{{ i.numero }}</td>
-            <td>{{ i.titre }}</td>
-            <td>{{ i.type_intervention }}</td>
-            <td>
-              <!-- Badge circulaire avec icône seule -->
-              <span class="badge rounded-circle d-inline-flex align-items-center justify-content-center"
-                [ngClass]="getBadgeClass(i.etat)" style="width: 30px; height: 30px;">
-                <i [ngClass]="['fs-6', getEtatIcon(i.etat)]"></i>
+      <div class="card-header bg-white border-0 py-3">
+        <div class="row align-items-center">
+          <div class="col-md-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-light border-end-0 text-muted">
+                <i class="fa fa-search"></i>
               </span>
-            </td>
-            <td>{{ i.date_creation | date:'dd/MM/yyyy' }}</td>
-
-            <td class="text-center">
-              <button class="btn btn-sm btn-light me-2" (click)="duplicate(i)">
-                <i class="fa fa-copy"></i>
-              </button>
-
-              <button class="btn btn-sm btn-light me-2" (click)="onSelectIntervention(i); $event.stopPropagation()">
-                <i class="fa fa-calendar"></i>
-              </button>
-
-              <button class="btn btn-sm btn-primary me-2" (click)="openDetail(i.id); $event.stopPropagation()">
-                <i class="fa fa-eye"></i>
-              </button>
-
-              <button class="btn btn-sm btn-warning me-2" (click)="editIntervention(i.id); $event.stopPropagation()">
-                <i class="fa fa-pencil"></i>
-              </button>
-
-              <button class="btn btn-sm btn-danger" (click)="deleteIntervention(i.id); $event.stopPropagation()">
-                <i class="fa fa-trash-o"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Légende des états sous le tableau -->
-      <div class="mt-3 d-flex flex-wrap gap-3">
-        <div class="text-center" *ngFor="let etat of etatsConfig">
-          <span class="badge rounded-circle d-inline-flex align-items-center justify-content-center"
-            [ngClass]="etat.class" style="width: 30px; height: 30px;">
-            <i [class]="etat.icon"></i>
-          </span>
-          <div class="text-muted mt-1" style="font-size: 11px;">
-            {{ etat.label }}
+              <input type="text" class="form-control bg-light border-start-0 ps-0 shadow-none"
+                placeholder="Rechercher par titre, numéro..." [(ngModel)]="searchTerm"
+                (keyup)="searchInterventions()" />
+            </div>
+          </div>
+          <div class="col-md-8 text-end">
+            <small class="text-muted" *ngIf="interventions.length">
+              {{ interventions.length }} intervention(s) affichée(s)
+            </small>
           </div>
         </div>
       </div>
 
 
-      <!-- Pagination -->
-      <nav *ngIf="totalPages > 1" class="mt-3">
-        <ul class="pagination justify-content-center">
-          <li class="page-item" [class.disabled]="currentPage === 1">
-            <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
-          </li>
-          <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-            <button class="page-link" (click)="changePage(page)">{{ page }}</button>
-          </li>
-          <li class="page-item" [class.disabled]="currentPage === totalPages">
-            <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
-          </li>
-        </ul>
-      </nav>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-striped table-hover text-center align-middle mb-0"
+            style="font-size: 0.82rem;">
+            <thead class="table-light text-secondary text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+              <tr>
+                <th class="py-3 ps-3">Réf</th>
+                <th class="text-start">Mission & Description</th>
+                <th>Type & Client</th>
+                <th>État & Intervenants</th>
+                <th>Planification</th>
+                <th style="width: 170px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let i of interventions">
+                <td class="fw-bold text-muted ps-3">#{{ i.numero }}</td>
 
+                <td class="text-start">
+                  <div class="fw-bold text-dark text-truncate" style="max-width: 200px;" [title]="i.titre">
+                    {{ i.titre }}
+                  </div>
+                  <small class="text-muted d-block text-truncate" style="max-width: 200px;">
+                    {{ i.description ? i.description.split(' ').slice(0, 3).join(' ') + '...' : 'Aucune description' }}
+                  </small>
+                </td>
+
+                <td>
+                  <div class="fw-semibold text-dark">
+                    {{ i.type_intervention ? i.type_intervention.split(' ').slice(0, 2).join(' ') + '...' : 'Aucune description' }}
+                  </div>
+                  <small class="text-primary fw-medium" *ngIf="i.client">
+                    <i class="fa fa-briefcase me-1"></i>
+                    {{ i.client.nom_client }}
+                    <span class="text-muted mx-1">|</span>
+                    <i [ngClass]="i.client.type_client === 'organisation' ? 'fa-industry' : 'fa-user-circle'"
+                      class="fa me-1"></i>
+                    <span class="text-capitalize">{{ i.client.type_client }}</span>
+                  </small>
+                  <small class="text-muted" *ngIf="!i.client">
+                    <i class="fa fa-spinner fa-spin me-1"></i> Chargement client...
+                  </small>
+                </td>
+
+                <td>
+                  <div class="d-flex flex-column align-items-center">
+                    <span class="badge rounded-pill px-2 py-1 mb-1 shadow-none" [ngClass]="getBadgeClass(i.etat)"
+                      style="font-size: 0.7rem;">
+                      <i [ngClass]="getEtatIcon(i.etat)" class="me-1"></i> {{ i.etat.replace('_', ' ') }}
+                    </span>
+
+                    <div *ngIf="i.techniciens && i.techniciens.length > 0; else noTech">
+                      <small class="text-info fw-bold" [title]="getTechNames(i.techniciens)">
+                        <i class="fa fa-user me-1"></i>
+                        {{ i.techniciens[0].prenom }} {{ i.techniciens[0].nom }}
+                        <span *ngIf="i.techniciens.length > 1" class="badge bg-info ms-1">
+                          +{{ i.techniciens.length - 1 }}
+                        </span>
+                      </small>
+                    </div>
+
+                    <ng-template #noTech>
+                      <div *ngIf="i.equipe; else unassigned">
+                        <small class="text-primary fw-bold">
+                          <i class="fa fa-users me-1"></i>
+                          {{ i.equipe.nom }}
+                          <span *ngIf="i.equipe.chef" class="ms-1 text-muted" style="font-size: 0.8em;">
+                            (Chef: {{ i.equipe.chef.nom }})
+                          </span>
+                        </small>
+                      </div>
+                    </ng-template>
+
+                    <ng-template #unassigned>
+                      <small class="text-muted italic">
+                        <i class="fa fa-exclamation-triangle me-1"></i>
+                        Non assigné
+                      </small>
+                    </ng-template>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="fw-bold text-dark">
+                    {{ i.date_creation | date:'dd/MM/yyyy' }}
+                  </div>
+                  <div class="text-success small fw-bold mt-1" *ngIf="i.montant_intervention > 0">
+                    {{ i.montant_intervention }} €
+                  </div>
+                  <small class="text-muted"
+                    *ngIf="!i.montant_intervention || i.montant_intervention == '0.00'">Contrat</small>
+                </td>
+
+                <td class="text-nowrap pe-3">
+                  <div class="btn-group shadow-sm border rounded bg-white p-2">
+                    <button class="btn btn-xs btn-white border-end" (click)="duplicate(i)" title="Dupliquer"><i
+                        class="fa fa-copy text-secondary"></i></button>
+                    <button class="btn btn-xs btn-white border-end" (click)="onSelectIntervention(i)"
+                      title="Calendrier"><i class="fa fa-calendar text-info"></i></button>
+                    <button class="btn btn-xs btn-white border-end" (click)="openDetail(i.id)" title="Détails"><i
+                        class="fa fa-eye text-primary"></i></button>
+                    <button class="btn btn-xs btn-white border-end" (click)="editIntervention(i.id)" title="Modifier"><i
+                        class="fa fa-pencil text-warning"></i></button>
+                    <button class="btn btn-xs btn-white" (click)="deleteIntervention(i.id)" title="Supprimer"><i
+                        class="fa fa-trash text-danger"></i></button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer bg-white border-top-0 py-2">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+
+          <div class="d-flex gap-3">
+            <div class="d-flex align-items-center" *ngFor="let etat of etatsConfig">
+              <span class="badge rounded-circle d-inline-flex align-items-center justify-content-center me-1"
+                [ngClass]="etat.class" style="width: 18px; height: 18px;">
+                <i [class]="etat.icon" style="font-size: 0.55rem;"></i>
+              </span>
+              <span class="text-muted" style="font-size: 10px; text-transform: uppercase;">{{ etat.label }}</span>
+            </div>
+          </div>
+
+          <nav *ngIf="totalPages > 1">
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="changePage(currentPage - 1)" role="button">«</a>
+              </li>
+              <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
+                <a class="page-link" (click)="changePage(page)" role="button">{{ page }}</a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" (click)="changePage(currentPage + 1)" role="button">»</a>
+              </li>
+            </ul>
+          </nav>
+
+        </div>
+      </div>
     </div>
   </div>
 
-  <div *ngIf="!interventions.length" class="alert alert-secondary text-center">
-    🛠️ Aucune intervention trouvée.
+  <div *ngIf="!interventions.length" class="col-12 text-center py-5 border rounded bg-light">
+    <div class="text-muted">
+      <i class="fa fa-wrench fa-3x mb-3 opacity-25"></i>
+      <p class="mb-0">Aucune intervention trouvée.</p>
+    </div>
   </div>
 </div>
 
 <!-- Inclusion du composant modal-save -->
-<app-modal-save 
-  #modalSave>
+<app-modal-save #modalSave>
 </app-modal-save>

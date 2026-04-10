@@ -1,17 +1,75 @@
-.table thead th {
+/* Tailles de texte compactes */
+.x-small { font-size: 0.72rem; }
+.small { font-size: 0.85rem; }
+
+/* Carte compacte */
+.card-compact {
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+.card-compact:hover {
+  transform: translateY(-3px);
+}
+
+/* Avatar réduit */
+.avatar-sm-dense {
+  width: 34px;
+  height: 34px;
+  background: #f0f4f8;
+  color: #4e73df;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
+  font-size: 0.9rem;
 }
 
-.table tbody tr:hover {
-  background-color: #f1f7ff; /* léger bleu au survol */
+/* Badges */
+.badge-dense {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: #e0e7ff;
+  color: #4338ca;
+  border-radius: 5px;
+  text-transform: uppercase;
 }
 
-.btn-danger i {
-  margin-right: 5px;
+/* Style de l'adresse */
+.bg-address {
+  background-color: #fff9f0; /* Teinte légère orangée pour l'adresse */
+  border: 1px solid #ffecdb;
 }
 
-.list-unstyled li {
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px dashed #ddd;
+.border-dashed {
+  border: 1px dashed #dee2e6;
+}
+
+/* Boutons d'action footer */
+.btn-dense-action {
+  flex: 1;
+  border: none;
+  padding: 8px 0;
+  background: #fff;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+}
+.btn-dense-action:hover {
+  background-color: #f8fafc;
+}
+
+/* Pagination */
+.page-link {
+  border: none;
+  background: transparent;
+  color: #6c757d;
+  margin: 0 5px;
+}
+.page-item.active .page-link {
+  background: #4e73df !important;
+  border-radius: 5px;
+}
+.card .card-body{
+  padding: 14px !important;
 }

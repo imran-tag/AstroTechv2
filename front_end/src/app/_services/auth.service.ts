@@ -88,12 +88,23 @@ export class AuthService {
     }
   }
 
-  fetchMe() {
-    return this.http.get<{ user: any }>(`${this.api}/me`).pipe(
-      tap(res => {
-        localStorage.setItem('user', JSON.stringify(res.user));
-        this.currentUserSubject.next(res.user);
-      })
-    );
-  }
+fetchMe() {
+  return this.http.get<{ user: any }>(`${this.api}/me`).pipe(
+    tap({
+      next: (res) => {
+        if (res && res.user) {
+          // 1. Persistance locale
+          localStorage.setItem('user', JSON.stringify(res.user));
+          // 2. Notification des composants abonnés (Navbar/Sidebar)
+          this.currentUserSubject.next(res.user);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors de la récupération du profil', err);
+        // Optionnel : déconnexion si le token est invalide
+        // this.logout(); 
+      }
+    })
+  );
+}
 }

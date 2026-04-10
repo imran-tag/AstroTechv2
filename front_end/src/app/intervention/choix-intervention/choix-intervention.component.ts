@@ -1,37 +1,83 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common'; // Requis pour ngStyle et ngIf
-import { FormsModule } from '@angular/forms'; // Requis pour ngModel
+import { CommonModule } from '@angular/common'; 
+import { FormsModule } from '@angular/forms'; 
 import { AffairesService } from '../../_services/affaires/affaires.service';
 
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-choix-intervention',
-  standalone: true, // Vérifiez que vous êtes bien en mode standalone
-  imports: [CommonModule, FormsModule, RouterModule], // AJOUTEZ CES MODULES ICI
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './choix-intervention.component.html'
 })
 export class ChoixInterventionComponent implements OnInit {
   modalInstance: any;
   affaires: any[] = [];
   searchTerm = '';
+  
+  // Variables de pagination
   page = 1;
-  limit = 10;
-  typeCreation: string | null = null; // Pour gérer l'UI du choix
+  limit = 4;
+  totalItems = 0;
+  totalPages = 1;
+
+  typeCreation: string | null = null;
 
   constructor(private router: Router, private affaireService: AffairesService) {}
 
   ngOnInit(): void {
-    // Initialisation si nécessaire
+    // Initialisation si nécessaire au chargement du composant
   }
 
-  // CORRECTION : Ajout de la méthode manquante pour le bouton Annuler
+  /**
+   * Charge les données depuis le service avec pagination et recherche
+   */
+  loadAffaires() {
+    this.affaireService.getAllPaginated(this.page, this.limit, this.searchTerm).subscribe({
+      next: (res: any) => {
+        this.affaires = res.data;
+        this.totalItems = res.total || 0;
+        this.totalPages = Math.ceil(this.totalItems / this.limit);
+      },
+      error: (err) => console.error('Erreur chargement:', err)
+    });
+  }
+
+  /**
+   * Gère la recherche : réinitialise à la page 1 pour éviter les erreurs d'index
+   */
+  onSearch() {
+    this.page = 1;
+    this.loadAffaires();
+  }
+
+  /**
+   * Change la page actuelle et recharge les données
+   * @param newPage Le numéro de la page cible
+   */
+  changePage(newPage: number) {
+    if (newPage >= 1 && newPage <= this.totalPages) {
+      this.page = newPage;
+      this.loadAffaires();
+    }
+  }
+
+  openModal() {
+    this.page = 1; // On repart de la première page à l'ouverture
+    this.loadAffaires();
+    const modalElement = document.getElementById('affaireModal');
+    if (modalElement) {
+      this.modalInstance = new bootstrap.Modal(modalElement);
+      this.modalInstance.show();
+    }
+  }
+
   annuler() {
     this.router.navigate(['/interventions/list']);
   }
 
-  // Pour la sélection des options dans le HTML
   selectOption(type: string) {
     this.typeCreation = type;
     if (type === 'rapide') {
@@ -41,27 +87,20 @@ export class ChoixInterventionComponent implements OnInit {
     }
   }
 
-  loadAffaires() {
-    this.affaireService.getAllPaginated(this.page, this.limit, this.searchTerm).subscribe({
-      next: (res: any) => {
-        this.affaires = res.data;
-      },
-      error: (err) => console.error('Erreur chargement:', err)
+  goToIntervention(affaire: any) {
+    if (this.modalInstance) {
+      this.modalInstance.hide();
+    }
+    this.router.navigate(['/interventions/edit'], { 
+      queryParams: { affaireId: affaire.affaireId } 
     });
   }
 
-  openModal() {
-    this.loadAffaires();
-    const modalElement = document.getElementById('affaireModal');
-    if (modalElement) {
-      this.modalInstance = new bootstrap.Modal(modalElement);
-      this.modalInstance.show();
-    }
-  }
+  // --- Helpers UI ---
 
   getInitials(name: string): string {
     if (!name) return '??';
-    const parts = name.split(' ');
+    const parts = name.trim().split(' ');
     return parts.length >= 2 
       ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() 
       : name.substring(0, 2).toUpperCase();
@@ -89,12 +128,5 @@ export class ChoixInterventionComponent implements OnInit {
       'box-shadow': '0 2px 4px rgba(0,0,0,0.1)', 
       'margin-left': '-10px'
     };
-  }
-
-  goToIntervention(affaire: any) {
-    if (this.modalInstance) {
-      this.modalInstance.hide();
-    }
-    this.router.navigate(['/interventions/edit'], { queryParams: { affaireId: affaire.affaireId } });
   }
 }

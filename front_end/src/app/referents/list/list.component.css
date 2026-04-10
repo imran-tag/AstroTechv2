@@ -1,0 +1,54 @@
+.x-small { font-size: 0.72rem; }
+.small { font-size: 0.85rem; }
+
+.card-compact {
+  border-radius: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+.card-compact:hover {
+  /* transform: translateY(-2px); */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
+
+.avatar-sm-dense {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.file-section {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.file-item:hover {
+  background: #f8fafc;
+}
+
+.pending-file {
+  background: #fff4e5;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+}
+
+.btn-xs {
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  border-radius: 4px;
+}
+
+.pointer { cursor: pointer; }
+.hover-danger:hover { color: #dc3545 !important; }
+
+/* Scrollbar fine pour la zone de fichiers */
+.file-section::-webkit-scrollbar { width: 4px; }
+.file-section::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
