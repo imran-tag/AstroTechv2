@@ -28,7 +28,7 @@ export class MultiStepFormService {
     this.formStep2 = this.fb.group({
       etatLogement: [''],
       referentId: [[]],
-      motsCles: [[]],
+      motsCles: [[] as (string | number)[]],
       technicienId: [null],
       equipeTechnicienId: [null],
       equipeId: [''],
@@ -81,7 +81,7 @@ export class MultiStepFormService {
     this.formStep2.reset({
       etatLogement: '',
       referentId: [],
-      motsCles: [],
+      motsCles: [[]],
       technicienId: null,
       equipeTechnicienId: null,
       equipeId: '',

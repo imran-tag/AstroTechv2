@@ -114,10 +114,13 @@ class Adresse {
     // 🔹 GET ALL
     static async apiGetAll(req, res) {
         try {
-            const response = await AdresseService.getAllRecords();
+            // req.query.q récupère le "?q=..." dans l'URL
+            const searchTerm = req.query.q || null;
+
+            const response = await AdresseService.getAllRecords(searchTerm);
             res.json(response);
         } catch (error) {
-            console.error(error);
+            console.error("Erreur Controller:", error);
             res.status(500).json({ error: "Internal Server Error" });
         }
     }

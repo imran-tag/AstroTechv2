@@ -1,83 +1,119 @@
-import { Component, ViewChild, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../../_globale/shared/shared.module';
-import { ReferentsService } from '../../../../_services/referents/referents.service';
 import { InterventionFormService } from '../../../../_services/affaires/intervention-form.service';
-import { ModalSaveComponent } from '../../../../annuaire/modal-save/modal-save.component';
+import { ReferentsService } from '../../../../_services/referents/referents.service';
+import { MotCleService } from '../../../../_services/affaires/mot-cle.service';
 
 @Component({
   selector: 'app-etape2',
+  standalone: true,
   imports: [SharedModule],
   templateUrl: './etape2.component.html',
   styleUrl: './etape2.component.css'
 })
-export class Etape2Component {
-  @Input() form!: FormGroup;  // Reçu du parent
-  referentsList: any[] = []; // Liste des référents
-  keywords: string[] = [];
-  enteredKeyword: string = '';
+export class Etape2Component implements OnInit {
+  @Input() form!: FormGroup;
+
+  referentsList: any[] = [];
+  motsClesDisponibles: any[] = [];
 
   constructor(
-    private fb: FormBuilder,
     private formService: InterventionFormService,
-    private referentService: ReferentsService
+    private referentService: ReferentsService,
+    private motCleService: MotCleService
   ) { }
+
+  // ngOnInit() {
+  //   if (!this.form) return;
+
+  //   this.loadReferents();
+
+  //   // On charge les mots-clés et on restaure les données seulement après
+  //   this.motCleService.getAll().subscribe({
+  //     next: (data) => {
+  //       this.motsClesDisponibles = data || [];
+
+  //       // Restauration des données sauvegardées
+  //       const savedData = this.formService.getFormData()['step2'];
+  //       if (savedData) {
+  //         this.form.patchValue(savedData);
+  //       }
+  //     },
+  //     error: (err) => console.error('Erreur API Mots-clés:', err)
+  //   });
+  // }
+
+  ngOnInit() {
+    if (!this.form) return;
+
+    console.log('** Bonjour **', this.form);
+
+
+    this.loadReferents();
+
+    // 1. Chargement des mots-clés de référence depuis l'API
+    this.loadMotCle();
+  }
+
+  loadMotCle() {
+    this.motCleService.getAll().subscribe({
+      next: (data) => {
+        this.motsClesDisponibles = data || [];
+
+        // 2. Récupération des données sauvegardées (via le service ou l'édition)
+        const savedData = this.formService.getFormData()['step2'];
+
+        if (savedData) {
+          // 🔹 LOGIQUE CRUCIALE : 
+          // Si 'motsCles' contient des objets (motsClesDetails), 
+          // on extrait l'ID ou le libellé pour que le formulaire soit valide.
+          if (savedData.motsCles && Array.isArray(savedData.motsCles)) {
+            savedData.motsCles = savedData.motsCles.map((item: any) => {
+              // Si c'est un objet venant de motsClesDetails {id, libelle}
+              if (item && typeof item === 'object') {
+                return item.id ? item.id : item.libelle;
+              }
+              // Sinon on garde la valeur brute (ID ou string)
+              return item;
+            });
+          }
+
+          // 3. Application des valeurs au formulaire
+          this.form.patchValue(savedData);
+        }
+      },
+      error: (err) => console.error('Erreur API Mots-clés:', err)
+    });
+  }
 
   loadReferents() {
     this.referentService.getAll().subscribe({
-      next: (res: any) => {
-        this.referentsList = res || [];
-      },
-      error: (err) => console.error(err)
+      next: (res: any) => this.referentsList = res || [],
+      error: (err) => console.error('Erreur API Référents:', err)
     });
   }
 
-  ngOnInit() {
-    // Charger les données enregistrées si elles existent
-    const savedData = this.formService.getFormData()['step2'];
-    if (savedData) {
-      this.form.patchValue(savedData);
-    }
-
-    // Sauvegarde automatique des données à chaque changement
-    this.form.valueChanges.subscribe(val => {
-      this.formService.setStepData('step2', val);
-    });
-
-    // 🔹 Initialiser keywords depuis le FormControl mots_cles
-    this.keywords = [];
-    const mots = this.form.get('mots_cles')?.value;
-
-    if (Array.isArray(mots)) {
-      this.keywords = [...mots];
-    }
-
-    //liste des referents
-    this.loadReferents();
-  }
+  // Permet d'ajouter des tags qui ne sont pas dans la liste
+  addCustomTag = (term: string) => term;
 
   saveStep() {
     if (this.form.valid) {
       this.formService.setStepData('step2', this.form.value);
-      console.log('Données enregistrées :', this.form.value);
     } else {
-      console.log('Formulaire invalide');
       this.form.markAllAsTouched();
     }
   }
 
-  addKeyword() {
-    if (this.enteredKeyword.trim() !== '') {
-      this.keywords.push(this.enteredKeyword.trim());
-      this.form.get('mots_cles')?.setValue([...this.keywords]);
-      this.enteredKeyword = '';
+  // Ajoute cette fonction pour résoudre l'erreur NG9
+  compareFn(item: any, selected: any) {
+    if (!item || !selected) return false;
+    // Si ce sont des objets, on compare l'ID ou le libellé
+    if (typeof item === 'object' && typeof selected === 'object') {
+      return item.id === selected.id || item.libelle === selected.libelle;
     }
-  }
-
-  deleteKeyword(index: number) {
-    this.keywords.splice(index, 1);
-    this.form.get('mots_cles')?.setValue([...this.keywords]);
-    this.enteredKeyword = '';
+    // Si l'un est une string/ID et l'autre un objet
+    return item === selected || item.id === selected || item.libelle === selected;
   }
 
 }

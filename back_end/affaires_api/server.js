@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const app = express();
 require("dotenv").config();
@@ -15,68 +14,100 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// === Auth ===
+// === Import des Contrôleurs et Middlewares ===
 const { register, login, me } = require('./controllers/_auth.controller');
 const { authenticateToken } = require('./middlewares/auth.js');
-
-app.post(`${URI}/auth/register`, register);
-app.post(`${URI}/auth/login`, login);
-app.get(`${URI}/auth/me`, authenticateToken, me);
-
 
 const InterventionController = require('./controllers/intervention.controller.js');
 const PlanningController = require('./controllers/planning.controller.js');
 const controllerAffaire = require('./controllers/affaires.controller.js');
 const DashboardController = require('./controllers/dashboard.controller');
+const MotCleLien = require('./controllers/mot_cle_liens.controller.js');
+const MotsClesController = require('./controllers/mots_cles.controller.js');
 
-// === Dashboard ===
-app.get(`${URI}/dashboard/interventions`, DashboardController.getInterventionsDashboard);
+// ==========================================
+// 🔐 AUTHENTIFICATION
+// ==========================================
+app.post(`${URI}/auth/register`, register);
+app.post(`${URI}/auth/login`, login);
+app.get(`${URI}/auth/me`, authenticateToken, me);
 
-// === Interventions ===
-// GET nextNumero avans GET by id
+// ==========================================
+// 📊 DASHBOARD
+// ==========================================
+app.get(`${URI}/dashboard/interventions`, authenticateToken, DashboardController.getInterventionsDashboard);
+
+// ==========================================
+// 🛠️ INTERVENTIONS
+// ==========================================
+
+// 1. Routes statiques ou spécifiques (AVANT les :id)
 app.get(`${URI}/interventions/nextNumero`, authenticateToken, InterventionController.apiGetNextNumero);
+app.get(`${URI}/interventions/all`, authenticateToken, InterventionController.apiGetAll);
+app.get(`${URI}/interventions/type/all`, authenticateToken, InterventionController.getInterventionTypes);
+app.get(`${URI}/interventions/by-type/:type_id`, authenticateToken, InterventionController.getByTypePaginated);
 
-// Routes interventions
-// 📌 Routes “spéciales” ou globales d’abord
-app.get(`${URI}/interventions/all`, authenticateToken, InterventionController.apiGetAll); // récupère toutes les interventions (sans pagination)
-// 📌 Création
-app.post(`${URI}/interventions`, authenticateToken, InterventionController.apiCreate);
-// 📌 Pagination / recherche
+// 2. Pagination et Recherche globale
 app.get(`${URI}/interventions`, authenticateToken, InterventionController.apiGetAllPaginated);
-// 📌 Actions spécifiques sur une intervention (mettre :id avant les routes globales comme /all)
+app.post(`${URI}/interventions`, authenticateToken, InterventionController.apiCreate);
+
+// 3. Routes avec ID (Actions sur une intervention spécifique)
 app.get(`${URI}/interventions/:id`, authenticateToken, InterventionController.apiGetById);
+app.get(`${URI}/interventions/:id/details`, authenticateToken, InterventionController.apiGetDetails);
 app.put(`${URI}/interventions/:id`, authenticateToken, InterventionController.apiUpdateById);
 app.delete(`${URI}/interventions/:id`, authenticateToken, InterventionController.apiDeleteById);
-// 📌 Actions sur ressources liées à une intervention
-app.post(`${URI}/interventions/:id/assign-techniciens`, authenticateToken, InterventionController.assignTechniciens);
-app.post(`${URI}/interventions/:id/add-planning`, authenticateToken, InterventionController.addPlanning);
-app.put(`${URI}/interventions/:id/assign-equipe`, authenticateToken, InterventionController.assignEquipe);
+
+// 4. Sous-ressources d'interventions
 app.put(`${URI}/interventions/:id/type`, authenticateToken, InterventionController.updateEtat);
-app.get(`${URI}/interventions/by-type/:type_id`, authenticateToken, InterventionController.getByTypePaginated);
-app.get(`${URI}/interventions/type/all`, authenticateToken, InterventionController.getInterventionTypes);
+app.post(`${URI}/interventions/:id/assign-techniciens`, authenticateToken, InterventionController.assignTechniciens);
+app.put(`${URI}/interventions/:id/assign-equipe`, authenticateToken, InterventionController.assignEquipe);
+app.post(`${URI}/interventions/:id/add-planning`, authenticateToken, InterventionController.addPlanning); // Option 1
+app.post(`${URI}/interventions/:id/planning`, authenticateToken, PlanningController.addPlanning);     // Option 2 (via planning controller)
 app.post(`${URI}/interventions/:id/add-prevision`, authenticateToken, InterventionController.addPrevision);
-app.get(`${URI}/interventions/:id/details`, InterventionController.apiGetDetails);
 
-
-// ➕ Ajouter une planification pour une intervention
-app.post(`${URI}/interventions/:id/planning`, authenticateToken, PlanningController.addPlanning);
+// ==========================================
+// 📅 PLANNING (Général)
+// ==========================================
 app.get(`${URI}/planning`, authenticateToken, PlanningController.getAll);
 app.put(`${URI}/planning/:id`, authenticateToken, PlanningController.updatePlanning);
 app.delete(`${URI}/planning/:id`, authenticateToken, PlanningController.deletePlanning);
 
-// === Affaires ===
-// CREATE
+// ==========================================
+// DICTIONNAIRE DES MOTS CLÉS
+// ==========================================
+app.post(`${URI}/mots-cles`, authenticateToken, MotsClesController.apiCreate);
+app.get(`${URI}/mots-cles`, authenticateToken, MotsClesController.apiGetAll);
+app.get(`${URI}/mots-cles/:id`, authenticateToken, MotsClesController.apiGetById);
+app.put(`${URI}/mots-cles/:id`, authenticateToken, MotsClesController.apiUpdateById);
+app.delete(`${URI}/mots-cles/:id`, authenticateToken, MotsClesController.apiDeleteById);
+
+// ==========================================
+// MOTS CLÉS (LIENS POLYMORPHIQUE)
+// ==========================================
+app.post(`${URI}/mot-cle-liens`, authenticateToken, MotCleLien.apiCreate);
+app.get(`${URI}/mot-cle-liens`, authenticateToken, MotCleLien.apiGetAll);
+app.get(`${URI}/mot-cle-liens/:id`, authenticateToken, MotCleLien.apiGetById);
+app.put(`${URI}/mot-cle-liens/:id`, authenticateToken, MotCleLien.apiUpdateById);
+app.delete(`${URI}/mot-cle-liens/:id`, authenticateToken, MotCleLien.apiDeleteById);
+app.get(`${URI}/mot-cle-liens/target/:target_type/:target_id`, authenticateToken, MotCleLien.apiGetByTarget);
+
+// ==========================================
+// 💼 AFFAIRES
+// ==========================================
+// Note : Ajout du préfixe /affaires pour éviter les conflits avec la racine de l'API
 app.post(`${URI}`, authenticateToken, controllerAffaire.apiCreate);
-// GET (statique AVANT dynamique)
 app.get(`${URI}/all`, authenticateToken, controllerAffaire.apiGetAll);
 app.get(`${URI}`, authenticateToken, controllerAffaire.apiGetAllPaginated);
-// GET / UPDATE / DELETE par ID (dynamiques à la fin)
+
+// Routes dynamiques à la fin
 app.get(`${URI}/:id`, authenticateToken, controllerAffaire.apiGetById);
 app.put(`${URI}/:id`, authenticateToken, controllerAffaire.apiUpdateById);
 app.delete(`${URI}/:id`, authenticateToken, controllerAffaire.apiDeleteById);
 
-
-// === Start the server ===
+// ==========================================
+// 🚀 LANCEMENT DU SERVEUR
+// ==========================================
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running at http://0.0.0.0:${PORT}`);
+    console.log(`✅ AstroTech Server running at http://localhost:${PORT}`);
+    console.log(`🌐 API Base URL: ${URI}`);
 });

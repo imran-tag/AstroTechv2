@@ -13,10 +13,26 @@ import { SecteurService } from '../../_services/clients/secteur.service';
 import { HabitationService } from '../../_services/clients/habitation.service';
 import * as bootstrap from 'bootstrap';
 import { ActivatedRoute } from '@angular/router';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, switchMap, catchError, startWith, map, distinctUntilChanged } from 'rxjs/operators';
+import { Observable, of } from 'rxjs'; // Vérifie bien l'import de 'of'
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-modal-save',
-  imports: [SharedModule],
+  standalone: true, // Assurez-vous que c'est bien un composant standalone
+  imports: [
+    CommonModule,          // <-- Indispensable pour | async et *ngIf
+    ReactiveFormsModule,   // <-- Indispensable pour [formControl]
+    SharedModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+  ],
   templateUrl: './modal-save.component.html',
   styleUrls: ['./modal-save.component.css']
 })
@@ -503,12 +519,9 @@ export class ModalSaveComponent {
   /** Editer un client */
   editClient(client: any) {
 
-    //console.log("* * *", client.type_parent, client);
     // Récupère la valeur une seule fois au chargement du composant
     //let typeValue = this.route.snapshot.queryParamMap.get('type');
     let typeValue: string = this.route.snapshot.queryParamMap.get('type') ?? '';
-    console.log("typeValue",typeValue); // Affiche "agence"
-    
 
     this.isEditMode = true;
     this.isFirstVisible = true;
@@ -577,24 +590,9 @@ export class ModalSaveComponent {
         this.singleAdresse = client.adresse ? { ...client.adresse } : this.getEmptyAdresse();
         break;
 
-      // case 'habitation':
-      //   this.type_client = 'habitation';
-      //   this.singleHabitation = {
-      //     id: client.habitation_id || client.habitation?.id || null,
-      //     reference: client.reference || client.habitation?.reference || '',
-      //     surface: client.surface || client.habitation?.surface || null,
-      //     adresse_id: client.adresse?.id || client.habitation?.adresse_id || null,
-      //     secteur_id: client.secteur_id || client.habitation?.secteur_id || null,
-      //     agence_id: client.agence_id || client.habitation?.agence_id || null,
-      //     organisation_id: client.organisation_id || client.habitation?.organisation_id || null,
-      //     particulier_id: client.particulier_id || client.habitation?.particulier_id || null
-      //   };
-      //   this.singleAdresse = client.adresse ? { ...client.adresse } : this.getEmptyAdresse();
-      //   break;
-
       case 'habitation':
         console.log();
-        
+
         this.type_client = 'habitation';
         const h = client.habitation; // Alias pour plus de clarté
 
@@ -667,13 +665,7 @@ export class ModalSaveComponent {
   // Charger les clients enfants
   getAllClientsEnfantsByParent(id: number, type: string) {
     this.clientsService.getClientsByParentWithDetails(id, type).subscribe((result: any) => {
-      // this.clients = (result.data as any[]).map(client => ({
-      //   ...client,
-      //   contacts: client.contacts || []
-      // }));
-
       this.clients = result.data;
-
     });
   }
 
@@ -686,5 +678,56 @@ export class ModalSaveComponent {
     this.clientAdded.emit(client);
     this.closeModal();
   }
+
+  // On définit listAdersse comme un Observable pour l'utiliser avec le pipe | async
+  // ✅ À faire :
+  listAdersse$: Observable<any[]> = of([]);
+  // Le contrôle du champ texte
+  adresseCtrl = new FormControl('');
+  setupSearch() {
+    this.listAdersse$ = this.adresseCtrl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(300),
+      distinctUntilChanged(),
+      // On force 'value' à être de type 'any' pour éviter l'erreur 'never' ou '{}'
+      switchMap((value: any): Observable<any[]> => {
+
+        // Extraction sécurisée
+        const searchTerm = typeof value === 'string' ? value : (value as any)?.adresse;
+
+        if (searchTerm && searchTerm.length > 2) {
+          // On précise que getAll retourne un tableau d'any
+          return this.adressesService.getAll(searchTerm).pipe(
+            catchError(() => of([]))
+          );
+        } else {
+          return of([]);
+        }
+      })
+    );
+  }
+
+
+  displayFn(addr: any): string {
+    // Debug : vérifiez ce qui arrive quand vous sélectionnez ou cherchez
+    // console.log("Donnée reçue par displayFn :", addr);
+    if (addr && typeof addr === 'object') {
+      return addr.adresse || ''; // Vérifiez bien que la clé SQL est minuscule 'adresse'
+    }
+    return addr || '';
+  }
+
+  ngOnInit() {
+    // On branche l'écouteur d'événements au démarrage
+    this.setupSearch();
+  }
+
+  onAdresseSelected(event: any) {
+    const selectedAddr = event.option.value;
+    // On remplit l'objet singleAdresse avec les données reçues
+    this.singleAdresse = { ...selectedAddr };
+    
+  }
+
 
 }

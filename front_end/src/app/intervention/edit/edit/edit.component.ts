@@ -32,7 +32,7 @@ export class EditComponent {
   interventionId!: number;
   affaireId: number | null = null;
   formReady = false; // pour afficher les enfants après patch
-  
+
 
   constructor(
     public formService: InterventionFormService,
@@ -83,13 +83,11 @@ export class EditComponent {
 
       this.formService.formStep2.patchValue({
         referent_ids: Array.isArray(a.referents) ? a.referents : [],
-        mots_cles: a.motsCles ? a.motsCles.split(',') : [],
+        motsCles: a.motsCles || [],
+        motsClesDetails: a.motsClesDetails || [],
         date_butoir_realisation: formatDate(a.dateFin),
         date_cloture_estimee: formatDate(a.dateFin)
       });
-
-      console.log(this.formService);
-
 
     } catch (err) {
       console.error('Erreur chargement affaire', err);
@@ -103,16 +101,18 @@ export class EditComponent {
       const i = res;
       if (!i) return;
 
+
       this.formService.formStep1.patchValue({
         numero: i.numero != null ? Number(i.numero) : 0,
         titre: i.titre || '',
         type: i.type || '',
-        type_id: i.type_id || 0,  
+        type_id: i.type_id || 0,
         client_id: i.client_id || 0,
         zone_intervention_client_id: i.zone_intervention_client_id || 0,
         type_client_zone_intervention: i.type_client_zone_intervention || 'autre_zone',
         description: i.description || ''
       });
+
 
       this.formService.formStep2.patchValue({
         priorite: i.priorite || '',
@@ -120,11 +120,23 @@ export class EditComponent {
         etat: i.etat || '',
         date_butoir_realisation: formatDate(i.date_butoir_realisation),
         date_cloture_estimee: formatDate(i.date_cloture_estimee),
-        mots_cles: i.mots_cles ? i.mots_cles.split(',') : [],
+        motsClesDetails: Array.isArray(i.motsClesDetails) ? i.motsClesDetails : [],
+        //motsCles: Array.isArray(i.motsClesDetails) ? i.motsClesDetails : [],
+        motsCles: Array.isArray(i.motsClesDetails)
+          ? i.motsClesDetails.map((mc: any) => ({
+            // On s'assure de toujours avoir un objet avec la clé 'libelle'
+            id: mc.id || null,
+            libelle: mc.libelle || mc.nom || mc // mc au cas où c'est juste une string
+          }))
+          : [],
+        //mots_cles: i.mots_cles ? i.mots_cles.split(',') : [],
         montant_intervention: i.montant_intervention || 0,
         montant_main_oeuvre: i.montant_main_oeuvre || 0,
         montant_fournitures: i.montant_fournitures || 0
       });
+
+      console.log("*** infos form ***", this.formService.formStep2.value);
+
 
     } catch (err) {
       console.error('Erreur chargement intervention', err);
@@ -136,7 +148,7 @@ export class EditComponent {
     const formatDate = (d: string | null) => d ? d.split('T')[0] : null;
     const data = this.formService.getFormData();
     const all = { ...data.step1, ...data.step2 };
-    
+
 
     if (!all.numero || Number(all.numero) === 0 ||
       !all.titre || all.titre.trim() === '' ||
@@ -144,12 +156,12 @@ export class EditComponent {
       alert("⚠️ Les champs numéro, titre et type sont obligatoires.");
       return;
     }
-    
+
     const interventionData = {
       numero: Number(all.numero),
       titre: all.titre.trim(),
       client_id: all.client_id ? Number(all.client_id) : 0,
-      type_id: all.type_id ? Number(all.type_id) : 0,  
+      type_id: all.type_id ? Number(all.type_id) : 0,
       zone_intervention_client_id: all.zone_intervention_client_id ? Number(all.zone_intervention_client_id) : 0,
       type_client_zone_intervention: all.type_client_zone_intervention || 'autre_zone',
       description: all.description || '',
@@ -158,7 +170,21 @@ export class EditComponent {
       etat: all.etat || '',
       date_butoir_realisation: formatDate(all.date_butoir_realisation),
       date_cloture_estimee: formatDate(all.date_cloture_estimee),
-      mots_cles: Array.isArray(all.mots_cles) ? all.mots_cles.join(',') : '',
+      // ✅ SOLUTION OPTIMISÉE POUR LE FORMAT [3, 1, "mmm"]
+      motsCles: Array.isArray(all.motsCles)
+        ? all.motsCles
+          .filter((item: any) => item !== null && item !== undefined) // Supprime les entrées invalides
+          .map((item: any) => {
+            // Si c'est déjà un nombre ou une string simple (cas où ng-select aurait déjà aplati)
+            if (typeof item !== 'object') {
+              const num = Number(item);
+              return !isNaN(num) ? num : item;
+            }
+            // Si c'est un objet (cas Solution 1 de ma réponse précédente)
+            // On prend l'ID s'il existe, sinon le libelle
+            return item.id !== undefined ? item.id : item.libelle;
+          })
+        : [],
       montant_intervention: Number(all.montant_intervention || 0),
       montant_main_oeuvre: Number(all.montant_main_oeuvre || 0),
       montant_fournitures: Number(all.montant_fournitures || 0)
@@ -189,4 +215,5 @@ export class EditComponent {
   annuler() {
     this.router.navigate(['/interventions/list']);
   }
+
 }

@@ -80,9 +80,27 @@ class AdresseService {
   }
 
   // 🔹 GET ALL
-  static async getAllRecords() {
-    const query = `SELECT * FROM adresse`;
-    const [rows] = await db.execute(query);
+  static async getAllRecords(searchTerm = null) {
+    let query = `SELECT * FROM adresse`;
+    let params = [];
+
+    // On vérifie si searchTerm contient une vraie valeur
+    if (searchTerm && searchTerm.trim() !== '') {
+      // Cas : Recherche active
+      query += ` WHERE adresse LIKE ? 
+                   OR ville LIKE ? 
+                   OR code_postal LIKE ? 
+                   ORDER BY date_creation DESC`;
+
+      const wildCard = `%${searchTerm}%`;
+      params = [wildCard, wildCard, wildCard];
+    } else {
+      // Cas : Pas de recherche, on affiche tout
+      query += ` ORDER BY date_creation DESC`;
+    }
+
+    // db.execute gère dynamiquement les params (tableau vide si pas de recherche)
+    const [rows] = await db.execute(query, params);
     return rows;
   }
 

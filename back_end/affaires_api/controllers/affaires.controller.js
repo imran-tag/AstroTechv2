@@ -9,34 +9,21 @@ class Affaire {
                 reference, titre, zoneIntervention, description,
                 etatLogement, technicienId, equipeTechnicienId, referents,
                 dateDebut, dateFin, motsCles, dureePrevueHeures, dureePrevueMinutes,
-                memo, memoPiecesJointes, client_id, zone_intervention_client_id, type_client_zone_intervention,
+                memo, memoPiecesJointes, client_id, zone_intervention_client_id,
+                type_client_zone_intervention,
                 createur_id = req.user.id
             } = req.body;
 
-            // Vérification basique
-            if (!reference || !titre || !client_id)
+            if (!reference || !titre || !client_id) {
                 return res.status(400).json({ error: "reference, titre et client_id sont requis" });
+            }
 
             const record = {
-                reference,
-                titre,
-                zoneIntervention,
-                description,
-                etatLogement,
-                technicienId,
-                equipeTechnicienId,
-                referents,
-                dateDebut,
-                dateFin,
-                motsCles,
-                dureePrevueHeures,
-                dureePrevueMinutes,
-                memo,
-                memoPiecesJointes,
-                client_id,
-                zone_intervention_client_id,
-                type_client_zone_intervention,
-                createur_id
+                reference, titre, zoneIntervention, description,
+                etatLogement, technicienId, equipeTechnicienId, referents,
+                dateDebut, dateFin, motsCles, dureePrevueHeures, dureePrevueMinutes,
+                memo, memoPiecesJointes, client_id, zone_intervention_client_id,
+                type_client_zone_intervention, createur_id
             };
 
             const response = await AffaireService.apiCreate(record);

@@ -27,7 +27,6 @@ export class SidebarComponent implements OnInit {
     this.auth.fetchMe().subscribe({
       next: (result) => {
         this.currentUser = result.user;
-        console.log("***",result.user);
         
         if (this.currentUser && this.currentUser.full_name) {
           this.initials = this.generateInitials(this.currentUser.full_name);

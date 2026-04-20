@@ -13,8 +13,8 @@
 
 <div class="row mb-3">
   <div class="col-12">
-    <button class="btn btn-sm btn-gradient-success" (click)="goToAddIntervention()">
-      <i class="fa fa-plus me-1"></i> Nouvelle intervention
+    <button class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold border-0" (click)="goToAddIntervention()">
+      <i class="mdi mdi-plus me-1"></i> Nouvelle intervention
     </button>
   </div>
 </div>
@@ -26,14 +26,22 @@
       <div class="card-header bg-white border-0 py-3">
         <div class="row align-items-center">
           <div class="col-md-4">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text bg-light border-end-0 text-muted">
+            <!-- <div class="input-group input-group-sm">
                 <i class="fa fa-search"></i>
-              </span>
-              <input type="text" class="form-control bg-light border-start-0 ps-0 shadow-none"
+              <input type="text" class="form-control border-0 shadow-none ps-2 py-0 x-small ng-pristine ng-valid ng-touched"
                 placeholder="Rechercher par titre, numéro..." [(ngModel)]="searchTerm"
                 (keyup)="searchInterventions()" />
+            </div> -->
+
+            <div class="input-group input-group-sm">
+              <span class="input-group-text border-0 bg-transparent pe-0">
+                <i class="fa fa-search"></i>
+              </span>
+              <input type="text" class="form-control border-0 shadow-none ps-2 py-0 x-small"
+                placeholder="Rechercher par titre, numéro, mots-clés..." [(ngModel)]="searchTerm"
+                (input)="searchInterventions()" />
             </div>
+
           </div>
           <div class="col-md-8 text-end">
             <small class="text-muted" *ngIf="interventions.length">
@@ -73,7 +81,8 @@
 
                 <td>
                   <div class="fw-semibold text-dark">
-                    {{ i.type_intervention ? i.type_intervention.split(' ').slice(0, 2).join(' ') + '...' : 'Aucune description' }}
+                    {{ i.type_intervention ? i.type_intervention.split(' ').slice(0, 2).join(' ') + '...' : 'Aucune
+                    description' }}
                   </div>
                   <small class="text-primary fw-medium" *ngIf="i.client">
                     <i class="fa fa-briefcase me-1"></i>

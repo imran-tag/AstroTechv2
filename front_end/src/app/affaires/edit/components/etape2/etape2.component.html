@@ -27,22 +27,17 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label for="exampleInputName1">Mots-clés liés</label>
-                            <input type="text" class="form-control form-control-sm" id="exampleInputName1"
-                                placeholder="Name" [(ngModel)]="enteredKeyword" (keyup.enter)="addKeyword()"
-                                [ngModelOptions]="{standalone: true}">
 
-                            <div class="mt-2">
-                                <span class="badge bg-primary me-2 mb-2"
-                                    *ngFor="let keyword of keywords; let i = index">
-                                    {{ keyword }}
-                                    <button type="button" class="btn-close btn-close-white btn-sm ms-2"
-                                        aria-label="Close" (click)="deleteKeyword(i)">
-                                    </button>
-                                </span>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Mots-clés liés <i class="mdi mdi-help-circle-outline ms-1"></i>
+                            </label>
+                            <ng-select [items]="motsClesDisponibles" bindLabel="libelle" [multiple]="true"
+                                [addTag]="true" formControlName="motsCles" placeholder="Choisir..."
+                                class="custom-astro-select">
+                            </ng-select>
                         </div>
+
                     </div>
 
                     <div class="col-md-6">

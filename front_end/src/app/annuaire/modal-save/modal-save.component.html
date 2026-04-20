@@ -118,7 +118,30 @@
           <div class="tab-pane fade p-3" id="localisation" role="tabpanel" aria-labelledby="localisation-tab"
             *ngIf="type_client != 'organisation'">
             <fieldset class="border p-3 mb-2">
-              <!-- <legend class="w-auto fs-6">Adresse:</legend> -->
+              <div *ngIf="listAdersse$ | async as adresses">
+                <mat-form-field appearance="fill" style="width: 100%;">
+                  <mat-label>Rechercher une adresse</mat-label>
+
+                  <input type="text" matInput [formControl]="adresseCtrl" [matAutocomplete]="auto">
+
+                  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn"
+                    (optionSelected)="onAdresseSelected($event)">
+
+                    <mat-option *ngFor="let addr of listAdersse$ | async" [value]="addr">
+                      {{ addr.adresse }}
+                    </mat-option>
+
+                  </mat-autocomplete>
+                </mat-form-field>
+
+                <p *ngIf="adresses.length === 0 && (adresseCtrl.value?.length ?? 0) > 1" style="color: orange;">
+                  Aucun résultat pour cette recherche.
+                </p>
+              </div>
+
+
+
+              <!-- *** *** *** -->
               <div class="row">
                 <div class="mb-3">
                   <label for="adresse" class="form-label">
@@ -158,7 +181,6 @@
             </fieldset>
 
             <fieldset class="border p-3 mb-3">
-              <!-- <legend class="w-auto fs-5"></legend> -->
               <div class="row">
                 <div class="col-md-4">
                   <label for="etage">Étage</label>

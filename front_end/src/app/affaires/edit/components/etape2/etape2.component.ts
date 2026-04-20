@@ -1,10 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../../_globale/shared/shared.module';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MultiStepFormService } from '../../../../_services/multi-step-form.service';
 import { TechnicienService } from '../../../../_services/techniciens/technicien.service';
 import { ReferentsService } from '../../../../_services/referents/referents.service';
 import { EquipeTechniciensService } from '../../../../_services/techniciens/equipe-techniciens.service';
+import { MotCleService } from '../../../../_services/affaires/mot-cle.service';
 
 @Component({
   selector: 'app-etape2',
@@ -13,109 +14,100 @@ import { EquipeTechniciensService } from '../../../../_services/techniciens/equi
   templateUrl: './etape2.component.html',
   styleUrl: './etape2.component.css'
 })
-export class Etape2Component {
+export class Etape2Component implements OnInit {
+  @Input() form!: FormGroup;
 
-  @Input() form!: FormGroup;  // ✅ REÇU DU PARENT
+  referents: any[] = [];
+  techniciens: any[] = [];
+  equipes: any[] = [];
+  motsClesDisponibles: any[] = [];
+
+  selectedType: 'individuel' | 'equipe' = 'individuel';
+  selectedEquipe: any = null;
+  enteredKeyword: string = '';
+  keywords: (string | number)[] = []; // ✅ Typage mixte : string ou number
 
   constructor(
-    private fb: FormBuilder,
     private formService: MultiStepFormService,
     private technicienService: TechnicienService,
     private referentsService: ReferentsService,
-    private equipeService: EquipeTechniciensService
-  ) { }
-
-  selectedTechnicien: string = '';
-  selectedType: string = 'individuel'; // par défaut
-  enteredKeyword: string = '';
-  keywords: string[] = [];
-  selectedEquipe: any = null;
-
-  referents: any = [];
-  techniciens: any = [];
-  equipes: any = [];
+    private equipeService: EquipeTechniciensService,
+    private motCleService: MotCleService
+  ) {}
 
   ngOnInit() {
     if (!this.form) return;
 
-    // 🔹 Synchroniser le FormGroup avec le service
+    // 1. Initialiser les mots-clés depuis le formulaire
+    const mots = this.form.get('motsCles')?.value;
+    if (mots) {
+      this.keywords = Array.isArray(mots) ? [...mots] : [];
+    }
+
+    const equipeId = this.form.get('equipeTechnicienId')?.value;
+    this.selectedType = equipeId ? 'equipe' : 'individuel';
+
+    this.loadReferents();
+    this.loadTechniciens();
+    this.loadEquipes();
+    this.loadMotCle();
+
     this.form.valueChanges.subscribe(val => {
       this.formService.setStepData('step2', val);
     });
-
-
-    // 🔹 Initialiser keywords depuis le FormControl motsCles
-    this.keywords = [];
-    const mots = this.form.get('motsCles')?.value;
-    if (Array.isArray(mots)) {
-      this.keywords = [...mots];
-    }
-
-    // 🔹 Déterminer le type en fonction de equipeTechnicienId
-    this.selectedType = this.form.get('equipeTechnicienId')?.value ? 'equipe' : 'individuel';
-
-    // 🔹 Charger les données nécessaires
-    this.loadTechnicien();
-    this.loadReferent();
-    this.loadEquipes();
-    //this.onEquipeSelect();
   }
 
-  loadTechnicien() {
-    this.technicienService.getAll().subscribe(data => {
-      this.techniciens = data;
-    });
-  }
-
-  loadReferent() {
-    this.referentsService.getAll().subscribe(data => {
-      this.referents = data;
-    });
-  }
+  loadTechniciens() { this.technicienService.getAll().subscribe(data => this.techniciens = data); }
+  loadReferents() { this.referentsService.getAll().subscribe(data => this.referents = data); }
+  loadMotCle() { this.motCleService.getAll().subscribe(data => this.motsClesDisponibles = data); }
 
   loadEquipes() {
     this.equipeService.getAllEquipes().subscribe((res: any) => {
-      this.equipes = res.data;
-      // si equipeTechnicienId selectionner une equipe 
-      const selectedId = this.form.get('equipeTechnicienId')?.value;
-      if(selectedId)
-        this.selectedEquipe =
-      this.equipes.find((eq: any) => eq.id === selectedId) || null;
-    })
+      this.equipes = res.data || [];
+      if (this.selectedType === 'equipe') { this.updateSelectedEquipe(); }
+    });
   }
-
 
   onTechnicienChange(event: any): void {
-    this.form.patchValue({ equipeTechnicienId: null });
     this.selectedType = event.target.value;
-    this.selectedEquipe = null;
+    if (this.selectedType === 'individuel') {
+      this.form.patchValue({ equipeTechnicienId: null });
+      this.selectedEquipe = null;
+    } else {
+      this.form.patchValue({ technicienId: null });
+    }
   }
 
-  addKeyword() {
-    if (this.enteredKeyword.trim() !== '') {
-      this.keywords.push(this.enteredKeyword.trim());
-      this.form.get('motsCles')?.setValue([...this.keywords]);
-      this.enteredKeyword = '';
+  onEquipeSelect() {
+    this.form.patchValue({ technicienId: null });
+    this.updateSelectedEquipe();
+  }
+
+  private updateSelectedEquipe() {
+    const id = this.form.get('equipeTechnicienId')?.value;
+    if (id) {
+      this.selectedEquipe = this.equipes.find(eq => eq.id === Number(id)) || null;
     }
+  }
+
+  // --- Gestion des Mots-Clés ---
+
+  addKeyword() {
+    const val = this.enteredKeyword.trim();
+    if (val && !this.keywords.includes(val)) {
+      this.keywords.push(val); // Ajout comme string
+      this.updateFormControlKeywords();
+    }
+    this.enteredKeyword = '';
   }
 
   deleteKeyword(index: number) {
     this.keywords.splice(index, 1);
+    this.updateFormControlKeywords();
+  }
+
+  private updateFormControlKeywords() {
+    // ✅ On garde le tableau tel quel (mélange possible de string et number)
     this.form.get('motsCles')?.setValue([...this.keywords]);
-    this.enteredKeyword = '';
   }
-
-  // onEquipeSelect(event: any) {
-  //   this.form.patchValue({ technicienId: null });
-  //   const selectedId = Number(event.target.value);
-  //   this.selectedEquipe = this.equipes.find((eq: any) => eq.id === selectedId) || null;
-  // }
-
-  onEquipeSelect() {
-    const selectedId = this.form.get('equipeTechnicienId')?.value;
-    this.selectedEquipe =
-      this.equipes.find((eq: any) => eq.id === selectedId) || null;
-  }
-
-
 }

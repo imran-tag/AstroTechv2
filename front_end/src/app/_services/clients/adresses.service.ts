@@ -22,8 +22,12 @@ export class AdressesService {
   }
 
   /** Récupérer toutes les adresses */
-  getAll() {
-    return this.http.get<any[]>(`${this.baseUrl}`);
+  // getAll() {
+  //   return this.http.get<any[]>(`${this.baseUrl}`);
+  // }
+  getAll(term: string = ''): any {
+    // Si term est vide, l'URL sera "api/adresses?q=" et Node renverra tout.
+    return this.http.get<any[]>(`${this.baseUrl}?q=${term}`);
   }
 
   /** Récupérer une adresse par id */

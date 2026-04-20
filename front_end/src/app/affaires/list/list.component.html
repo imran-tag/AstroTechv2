@@ -96,20 +96,25 @@
               <i class="mdi mdi-dots-vertical fs-5"></i>
             </button>
 
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm p-1" [class.show]="isMenuOpen"
-              (mouseleave)="isMenuOpen = false" 
-              [style.visibility]="isMenuOpen ? 'visible' : 'hidden'" [style.opacity]="isMenuOpen ? '1' : '0'">
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm p-0" [class.show]="isMenuOpen"
+              (mouseleave)="isMenuOpen = false" [style.visibility]="isMenuOpen ? 'visible' : 'hidden'"
+              [style.opacity]="isMenuOpen ? '1' : '0'" style="min-width: 120px; font-size: 0.8rem;">
+
               <li>
-                <a class="dropdown-item rounded-2 small" (click)="goToEditAffaire(selectedAffaire)">
-                  <i class="mdi mdi-pencil me-2"></i> Editer
+                <a class="dropdown-item rounded-1 py-1 px-2" (click)="goToEditAffaire(selectedAffaire)">
+                  <i class="mdi mdi-pencil me-0"></i> Editer
                 </a>
               </li>
+
               <li>
-                <a class="dropdown-item rounded-2 small text-danger" (click)="deleteAffaire(selectedAffaire.affaireId)">
-                  <i class="mdi mdi-trash-can me-2"></i> Supprimer
+                <a class="dropdown-item rounded-1 py-1 px-2 text-danger"
+                  (click)="deleteAffaire(selectedAffaire.affaireId)">
+                  <i class="mdi mdi-trash-can me-0"></i> Supprimer
                 </a>
               </li>
             </ul>
+
+
           </div>
 
         </div>

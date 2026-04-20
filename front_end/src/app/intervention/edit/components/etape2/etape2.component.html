@@ -2,16 +2,11 @@
   <div class="card">
     <div class="card-body">
       <h4 class="card-title">Données initiales</h4>
-      <p class="card-description">
-        Remplissez les informations de l'intervention
-      </p>
+      <p class="card-description">Remplissez les informations de l'intervention</p>
 
       <form [formGroup]="form" (ngSubmit)="saveStep()">
         <div class="row">
-          <!-- Colonne gauche -->
           <div class="col-sm-6">
-
-            <!-- Priorité -->
             <div class="mb-3">
               <label for="priorite">Priorité <strong class="text-danger">*</strong></label>
               <select id="priorite" class="form-select form-select-sm" formControlName="priorite">
@@ -22,33 +17,26 @@
               </select>
             </div>
 
-            <!-- Référent(s) -->
             <div class="mb-3">
               <label for="referents">Référent(s) <strong class="text-danger">*</strong></label>
-              <select id="referents" class="form-select" formControlName="referent_ids" multiple>
+              <select id="referents" class="form-select form-select-sm" formControlName="referent_ids" multiple style="height: 50px !important;">
                 <option *ngFor="let referent of referentsList" [value]="referent.id">
                   {{ referent.nom }}
                 </option>
               </select>
             </div>
 
-            <!-- État -->
             <div class="mb-3">
               <label for="etat">État <strong class="text-danger">*</strong></label>
               <select id="etat" class="form-select form-select-sm" formControlName="etat">
-                <option value="null" disabled>Choisir...</option>
+                <option [value]="null" disabled>Choisir...</option>
                 <option value="annulee">Annulée</option>
                 <option value="en_cours">En cours</option>
                 <option value="prevue">Prévue</option>
-                <option value="terminee_avec_interruption">Terminée avec interruption</option>
                 <option value="terminee_avec_succes">Terminée avec succès</option>
-                <option value="trajet_en_cours">Trajet en cours</option>
-                <option value="pause">Pause</option>
-                <option value="refusee">Refusée</option>
               </select>
             </div>
 
-            <!-- Date butoir de réalisation -->
             <div class="mb-3">
               <label for="date_butoir_realisation">Date butoir de réalisation <strong
                   class="text-danger">*</strong></label>
@@ -56,7 +44,6 @@
                 formControlName="date_butoir_realisation">
             </div>
 
-            <!-- Date de clôture estimée de l'affaire -->
             <div class="mb-3">
               <label for="date_cloture_estimee">Date de clôture estimée de l'affaire</label>
               <input type="date" id="date_cloture_estimee" class="form-control form-control-sm"
@@ -64,50 +51,36 @@
             </div>
           </div>
 
-          <!-- Colonne droite -->
           <div class="col-sm-6">
 
-            <!-- Mots-clés liés -->
             <div class="mb-3">
-              <label for="exampleInputName1">Mots-clés liés</label>
-              <input type="text" class="form-control" id="exampleInputName1" placeholder="Name"
-                [(ngModel)]="enteredKeyword" (keyup.enter)="addKeyword()" [ngModelOptions]="{standalone: true}">
-
-              <div class="mt-2">
-                <span class="badge bg-primary me-2 mb-2" *ngFor="let keyword of keywords; let i = index">
-                  {{ keyword }}
-                  <button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="Close"
-                    (click)="deleteKeyword(i)">
-                  </button>
-                </span>
-              </div>
+              <label class="form-label">Mots-clés liés <i class="mdi mdi-help-circle-outline ms-1"></i></label>
+              <ng-select [items]="motsClesDisponibles" bindLabel="libelle" [multiple]="true" [addTag]="true"
+                [compareWith]="compareFn" formControlName="motsCles" placeholder="Choisir..."
+                class="custom-astro-select">
+              </ng-select>
             </div>
 
-            <!-- Montant de l’intervention -->
             <div class="mb-3">
               <label for="montant_intervention">Montant de l’intervention</label>
               <input type="number" id="montant_intervention" class="form-control form-control-sm"
-                formControlName="montant_intervention" placeholder="0.00">
+                formControlName="montant_intervention">
             </div>
 
-            <!-- Montant main-d'œuvre -->
             <div class="mb-3">
               <label for="montant_main_oeuvre">Montant main-d'œuvre</label>
               <input type="number" id="montant_main_oeuvre" class="form-control form-control-sm"
-                formControlName="montant_main_oeuvre" placeholder="0.00">
+                formControlName="montant_main_oeuvre">
             </div>
 
-            <!-- Montant fournitures -->
             <div class="mb-3">
               <label for="montant_fournitures">Montant fournitures</label>
               <input type="number" id="montant_fournitures" class="form-control form-control-sm"
-                formControlName="montant_fournitures" placeholder="0.00">
+                formControlName="montant_fournitures">
             </div>
-
           </div>
         </div>
       </form>
-
     </div>
   </div>
 </div>

@@ -211,8 +211,6 @@ export class DetailsComponent implements OnInit {
       type_parent: this.client.type_client
     };
     
-    console.log(clientToEdit.type_parent);
-    
     // 3. Appel de la méthode sur la modal avec le nouvel objet
     this.modalSave?.editClient(clientToEdit);
   }

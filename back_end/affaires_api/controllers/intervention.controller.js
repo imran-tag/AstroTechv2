@@ -44,31 +44,84 @@ class Intervention {
     }
 
     // ➕ Créer une nouvelle intervention
+    // ➕ Créer une nouvelle intervention
     static async apiCreate(req, res) {
-    try {
-        const {
-            numero,
-            titre,
-            type_id,
-            description,
-            client_id,
-            zone_intervention_client_id,
-            type_client_zone_intervention,
-            priorite,
-            etat,
-            date_butoir_realisation,
-            date_cloture_estimee,
-            mots_cles,           // Synchronisé avec le JSON
-            referent_ids,        // Synchronisé avec le JSON
-            montant_intervention,
-            montant_main_oeuvre,
-            montant_fournitures,
-            createur_id = req.user?.id
-        } = req.body;
 
-        // Validation des champs obligatoires
-        if (!titre || !type_id || numero == null) {
-            return res.status(400).json({ error: "Les champs titre, type et numero sont obligatoires" });
+        try {
+            const {
+                numero,
+                titre,
+                type_id,
+                description,
+                client_id,
+                zone_intervention_client_id,
+                type_client_zone_intervention,
+                priorite,
+                etat,
+                date_butoir_realisation,
+                date_cloture_estimee,
+                // On extrait 'motsCles' tel que reçu dans le log (camelCase)
+                motsCles,
+                referent_ids,
+                montant_intervention,
+                montant_main_oeuvre,
+                montant_fournitures,
+                createur_id = req.user?.id
+            } = req.body;
+
+            // 1. Validation
+            if (!titre || !type_id || numero == null) {
+                return res.status(400).json({
+                    error: "Les champs titre, type_id et numero sont obligatoires"
+                });
+            }
+
+            // 2. Helper dates
+            const parseDate = (d) => {
+                if (!d || d === '') return null;
+                const date = new Date(d);
+                return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0];
+            };
+
+            // 3. Préparation de l'objet Record
+            const record = {
+                numero,
+                titre,
+                type_id,
+                description,
+                client_id,
+                zone_intervention_client_id,
+                type_client_zone_intervention,
+                priorite,
+                etat,
+                date_butoir_realisation: parseDate(date_butoir_realisation),
+                date_cloture_estimee: parseDate(date_cloture_estimee),
+                // ✅ On utilise la variable extraite correctement
+                motsCles: Array.isArray(motsCles) ? motsCles : [],
+                // ✅ On utilise referent_ids extrait du body pour remplir 'referents'
+                referents: Array.isArray(referent_ids) ? referent_ids : [],
+                montant_intervention,
+                montant_main_oeuvre,
+                montant_fournitures,
+                createur_id
+            };
+
+            // 4. Appel au service
+            const response = await InterventionService.apiCreate(record);
+
+            // 5. Réponse
+            return res.status(201).json({
+                success: true,
+                message: "Intervention créée avec succès",
+                data: response
+            });
+
+        } catch (error) {
+            console.error("❌ Controller Error (Intervention):", error);
+            return res.status(500).json({
+                success: false,
+                error: error.message
+            });
         }
 
         const parseDate = (d) => {
@@ -122,15 +175,35 @@ class Intervention {
             const { id } = req.params;
             const data = req.body;
 
-            if (!data.titre || !data.description || !data.numero)
+            // 1. Validation minimale
+            if (!data.titre || !data.description || !data.numero) {
                 return res.status(400).json({ error: "titre, description et numero sont requis" });
+            }
 
-            const response = await InterventionService.updateIntervention(id, data);
-            res.json(response);
+            // 2. Préparation des données pour le service
+            // On s'assure que le service reçoit les noms de clés qu'il attend (referents, motsCles)
+            const record = {
+                ...data,
+                referents: data.referent_ids || data.referents || [],
+                motsCles: data.motsCles || data.mots_cles || []
+            };
+
+            // 3. ✅ APPEL CORRIGÉ : On appelle le nom exact défini dans le service
+            const response = await InterventionService.updateIntervention(id, record);
+
+            if (!response) {
+                return res.status(404).json({ success: false, message: "Intervention non trouvée" });
+            }
+
+            return res.json({
+                success: true,
+                message: "Intervention mise à jour avec succès",
+                data: response
+            });
 
         } catch (error) {
-            console.error(error.message);
-            res.status(500).send();
+            console.error("❌ Controller Update Error:", error.message);
+            return res.status(500).json({ success: false, error: error.message });
         }
     }
 
