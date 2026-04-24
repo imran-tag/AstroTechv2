@@ -4,20 +4,33 @@ import { RegisterComponent } from './auth/register/register.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { AuthGuard } from './guards/auth.guard';
 
+// Importez les DEUX composants distincts
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+
 export const routes: Routes = [
-    // Redirection par défaut vers /login
     { path: '', redirectTo: 'login', pathMatch: 'full' },
 
     // Pages publiques
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
+    
+    // Étape 1 : Demande de mail
+    { path: 'forgot-password', component: ForgotPasswordComponent },
+    
+    // Étape 2 : Saisie du nouveau mot de passe (via le lien email)
+    { path: 'reset-password/:token', component: ResetPasswordComponent },
 
     // Pages avec layout (protégées)
     {
         path: '',
         component: MainLayoutComponent,
-        canActivate: [AuthGuard], // 🔐 protège toutes les routes enfants
+        canActivate: [AuthGuard],
         children: [
+            /** Dashboard & Profile **/
+            { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent) },
+            { path: 'profile', loadComponent: () => import('./auth/profile/profile.component').then(c => c.ProfileComponent) },
+
             /** Affaires **/
             { path: 'affaires/edit', loadComponent: () => import('./affaires/edit/edit/edit.component').then(c => c.EditComponent) },
             { path: 'affaires/edit/:id', loadComponent: () => import('./affaires/edit/edit/edit.component').then(c => c.EditComponent) },
@@ -25,7 +38,7 @@ export const routes: Routes = [
 
             /** Clients **/
             { path: 'clients/list', loadComponent: () => import('./annuaire/list/list.component').then(c => c.ListComponent) },
-             { path: 'clients/details/:id', loadComponent: () => import('./annuaire/details/details.component').then(c => c.DetailsComponent) },
+            { path: 'clients/details/:id', loadComponent: () => import('./annuaire/details/details.component').then(c => c.DetailsComponent) },
 
             /** Techniciens **/
             { path: 'techniciens/list', loadComponent: () => import('./techniciens/list/list.component').then(c => c.ListComponent) },
@@ -33,27 +46,20 @@ export const routes: Routes = [
             { path: 'techniciens/edit/:id', loadComponent: () => import('./techniciens/edit/edit.component').then(c => c.EditComponent) },
             { path: 'techniciens/equipe', loadComponent: () => import('./techniciens/equipe/equipe.component').then(c => c.EquipeComponent) },
 
-             /** Referents **/
+            /** Referents **/
             { path: 'referents/list', loadComponent: () => import('./referents/list/list.component').then(c => c.ListComponent) },
             { path: 'referents/edit', loadComponent: () => import('./referents/edit/edit.component').then(c => c.EditComponent) },
             { path: 'referents/edit/:id', loadComponent: () => import('./referents/edit/edit.component').then(c => c.EditComponent) },
 
             /** Intervention **/
+            { path: 'interventions', loadComponent: () => import('./intervention/choix-intervention/choix-intervention.component').then(c => c.ChoixInterventionComponent) },
+            { path: 'interventions/list', loadComponent: () => import('./intervention/list/list.component').then(c => c.ListComponent) },
             { path: 'interventions/edit', loadComponent: () => import('./intervention/edit/edit/edit.component').then(c => c.EditComponent) },
             { path: 'interventions/edit/:id', loadComponent: () => import('./intervention/edit/edit/edit.component').then(c => c.EditComponent) },
-            { path: 'interventions/list', loadComponent: () => import('./intervention/list/list.component').then(c => c.ListComponent) },
             { path: 'interventions/details/:id', loadComponent: () => import('./intervention/details/details.component').then(c => c.DetailsComponent) },
             { path: 'interventions/planning', loadComponent: () => import('./intervention/planning/planning.component').then(c => c.PlanningComponent) },
-            //
-            { path: 'interventions', loadComponent: () => import('./intervention/choix-intervention/choix-intervention.component').then(c => c.ChoixInterventionComponent) },
-            //
-            { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent) },
-            //profile
-            { path: 'profile', loadComponent: () => import('./auth/profile/profile.component').then(c => c.ProfileComponent) }
         ]
     },
 
-    // Page 404 (facultative)
     { path: '**', redirectTo: 'login' }
-
 ];

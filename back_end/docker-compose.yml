@@ -24,6 +24,7 @@ services:
 
   client_api:
     build: ./client_api
+    container_name: client_api_container
     ports:
       - "3001:3001"
     depends_on:
@@ -34,9 +35,16 @@ services:
       DB_USER: root
       DB_PASSWORD: 123456789
       DB_NAME: astro_tech
+      # Configuration Email injectée directement (évite l'erreur .env not found)
+      EMAIL_HOST: smtp.ethereal.email
+      EMAIL_PORT: 587
+      EMAIL_USER: zena.windler@ethereal.email
+      EMAIL_PASS: j3U2kSVSJgh2
+      FRONTEND_URL: http://localhost:4200
 
   fichier_api:
     build: ./fichier_api
+    container_name: fichier_api_container
     ports:
       - "3002:3002"
     volumes:
@@ -52,6 +60,7 @@ services:
 
   referent_api:
     build: ./referent_api
+    container_name: referent_api_container
     ports:
       - "3003:3003"
     depends_on:
@@ -65,6 +74,7 @@ services:
 
   technicien_api:
     build: ./technicien_api
+    container_name: technicien_api_container
     ports:
       - "3004:3004"
     depends_on:
@@ -78,6 +88,7 @@ services:
 
   affaires_api:
     build: ./affaires_api
+    container_name: affaires_api_container
     ports:
       - "3005:3005"
     depends_on:

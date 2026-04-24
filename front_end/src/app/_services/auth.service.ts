@@ -15,7 +15,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<any>(this.getUserFromStorage());
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // --- Méthodes existantes ---
 
@@ -48,7 +48,7 @@ export class AuthService {
         // On récupère les infos actuelles et on fusionne avec les nouvelles
         const currentUser = this.currentUserSubject.value;
         const updatedUser = { ...currentUser, ...payload };
-        
+
         // Mise à jour du stockage local et du flux de données
         localStorage.setItem('user', JSON.stringify(updatedUser));
         this.currentUserSubject.next(updatedUser);
@@ -88,23 +88,43 @@ export class AuthService {
     }
   }
 
-fetchMe() {
-  return this.http.get<{ user: any }>(`${this.api}/me`).pipe(
-    tap({
-      next: (res) => {
-        if (res && res.user) {
-          // 1. Persistance locale
-          localStorage.setItem('user', JSON.stringify(res.user));
-          // 2. Notification des composants abonnés (Navbar/Sidebar)
-          this.currentUserSubject.next(res.user);
+  fetchMe() {
+    return this.http.get<{ user: any }>(`${this.api}/me`).pipe(
+      tap({
+        next: (res) => {
+          if (res && res.user) {
+            // 1. Persistance locale
+            localStorage.setItem('user', JSON.stringify(res.user));
+            // 2. Notification des composants abonnés (Navbar/Sidebar)
+            this.currentUserSubject.next(res.user);
+          }
+        },
+        error: (err) => {
+          console.error('Erreur lors de la récupération du profil', err);
+          // Optionnel : déconnexion si le token est invalide
+          // this.logout(); 
         }
-      },
-      error: (err) => {
-        console.error('Erreur lors de la récupération du profil', err);
-        // Optionnel : déconnexion si le token est invalide
-        // this.logout(); 
-      }
-    })
-  );
-}
+      })
+    );
+  }
+
+  // --- NOUVELLES MÉTHODES : MOT DE PASSE OUBLIÉ ---
+
+  /**
+   * Demande d'envoi d'un mail de récupération
+   */
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.api}/forgot-password`, { email });
+  }
+
+  /**
+   * Réinitialisation effective du mot de passe avec le token
+   */
+  // Si this.api vaut "http://localhost:3001/api/v1/auth"
+  resetPassword(token: string, password: string): Observable<any> {
+    // Retirez le "auth" en trop ici
+    return this.http.post(`${this.api}/reset-password/${token}`, { password });
+  }
+
+
 }

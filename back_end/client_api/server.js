@@ -17,7 +17,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // === Auth ===
-const { register, login, me, updateProfile, updatePassword } = require('./controllers/_auth.controller');
+const { 
+  register,
+  login,
+  me,
+  updateProfile,
+  updatePassword,
+  forgotPassword,
+  resetPassword
+} = require('./controllers/_auth.controller');
+
 const { authenticateToken } = require('./middlewares/auth.js');
 
 // Routes publiques (Auth)
@@ -31,6 +40,14 @@ app.get(`${API_URI}/auth/me`, authenticateToken, me);
 // Note : 'authenticateToken' est ton middleware qui vérifie le JWT
 app.put(`${API_URI}/auth/profile`, authenticateToken, updateProfile);
 app.put(`${API_URI}/auth/password`, authenticateToken, updatePassword);
+app.post(`${API_URI}/auth/forgot-password`, forgotPassword);
+app.post(`${API_URI}/auth/reset-password/:token`, resetPassword);
+
+
+// app.put(`${API_URI}/auth/profile`, authenticateToken, updateProfile);
+// app.put(`${API_URI}/auth/password`, authenticateToken, updatePassword);
+// app.post(`${API_URI}/auth/forgot-password`, forgotPassword);
+// app.post(`${API_URI}/auth/reset-password/:token`, resetPassword);
 
 // === Controllers ===
 const controllerClient = require('./controllers/clients.controller');

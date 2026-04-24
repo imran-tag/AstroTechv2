@@ -99,49 +99,127 @@ export class EditComponent implements OnInit {
   nextStep() { if (this.step < 3) this.step++; }
   previousStep() { if (this.step > 1) this.step--; }
 
+  /**
+   * Méthode d'upload des fichiers adaptée à la structure du formulaire
+   */
+  async uploadFiles(idAffaire: number, files: File[]) {
+    if (!files || files.length === 0) return;
+
+    console.log(`Début de l'upload pour l'affaire #${idAffaire}`);
+
+    for (const file of files) {
+      try {
+        const fd = new FormData();
+        fd.append('files', file); // 'files' doit correspondre au nom attendu par votre middleware Multer
+        fd.append('idAffaire', idAffaire.toString());
+
+        await lastValueFrom(this.fichiersService.uploadFiles(fd));
+        console.log(`Fichier ${file.name} envoyé avec succès.`);
+      } catch (err) {
+        console.error(`Erreur upload pour le fichier ${file.name}`, err);
+      }
+    }
+  }
+
+  // async submit() {
+  //   const data = this.formService.getFormData();
+  //   // Fusion des données des 3 étapes
+  //   const all = { ...data.step1, ...data.step2, ...data.step3 };
+
+  //   const affaireData = {
+  //     ...all,
+  //     // Conversion des IDs classiques
+  //     client_id: all.client_id ? Number(all.client_id) : null,
+  //     technicienId: all.technicienId ? Number(all.technicienId) : null,
+  //     equipeTechnicienId: all.equipeTechnicienId ? Number(all.equipeTechnicienId) : null,
+  //     referents: Array.isArray(all.referentId) ? all.referentId.map(Number).filter((id: any) => !isNaN(id)) : [],
+
+  //     // ✅ SOLUTION OPTIMISÉE POUR LE FORMAT [3, 1, "mmm"]
+  //     motsCles: Array.isArray(all.motsCles)
+  //       ? all.motsCles
+  //         .filter((item: any) => item !== null && item !== undefined) // Supprime les entrées invalides
+  //         .map((item: any) => {
+  //           // Si c'est déjà un nombre ou une string simple (cas où ng-select aurait déjà aplati)
+  //           if (typeof item !== 'object') {
+  //             const num = Number(item);
+  //             return !isNaN(num) ? num : item;
+  //           }
+  //           // Si c'est un objet (cas Solution 1 de ma réponse précédente)
+  //           // On prend l'ID s'il existe, sinon le libelle
+  //           return item.id !== undefined ? item.id : item.libelle;
+  //         })
+  //       : [],
+
+  //     dateDebut: all.dateDebut || null,
+  //     dateFin: all.dateFin || null
+  //   };
+
+  //   console.log("Données envoyées à l'API :", affaireData);
+
+  //   this.loading = true;
+  //   try {
+  //     if (this.isEdit) {
+  //       await lastValueFrom(this.affairesService.update(this.affaireId, affaireData));
+  //     } else {
+  //       const res: any = await lastValueFrom(this.affairesService.create(affaireData));
+  //       // ... gestion des fichiers
+  //     }
+  //     this.formService.resetAllForms();
+  //     this.router.navigate(['/affaires/list']);
+  //   } catch (err) {
+  //     console.error("Erreur lors de la sauvegarde", err);
+  //   } finally {
+  //     this.loading = false;
+  //   }
+  // }
+
   async submit() {
     const data = this.formService.getFormData();
-    // Fusion des données des 3 étapes
     const all = { ...data.step1, ...data.step2, ...data.step3 };
+
+    // On récupère les fichiers séparément avant la conversion des données
+    const filesToUpload = all.fichiers || [];
 
     const affaireData = {
       ...all,
-      // Conversion des IDs classiques
       client_id: all.client_id ? Number(all.client_id) : null,
       technicienId: all.technicienId ? Number(all.technicienId) : null,
       equipeTechnicienId: all.equipeTechnicienId ? Number(all.equipeTechnicienId) : null,
       referents: Array.isArray(all.referentId) ? all.referentId.map(Number).filter((id: any) => !isNaN(id)) : [],
-
-      // ✅ SOLUTION OPTIMISÉE POUR LE FORMAT [3, 1, "mmm"]
       motsCles: Array.isArray(all.motsCles)
         ? all.motsCles
-          .filter((item: any) => item !== null && item !== undefined) // Supprime les entrées invalides
+          .filter((item: any) => item !== null && item !== undefined)
           .map((item: any) => {
-            // Si c'est déjà un nombre ou une string simple (cas où ng-select aurait déjà aplati)
             if (typeof item !== 'object') {
               const num = Number(item);
               return !isNaN(num) ? num : item;
             }
-            // Si c'est un objet (cas Solution 1 de ma réponse précédente)
-            // On prend l'ID s'il existe, sinon le libelle
             return item.id !== undefined ? item.id : item.libelle;
           })
         : [],
-
       dateDebut: all.dateDebut || null,
       dateFin: all.dateFin || null
     };
 
-    console.log("Données envoyées à l'API :", affaireData);
-
     this.loading = true;
     try {
+      let currentAffaireId = this.affaireId;
+
       if (this.isEdit) {
+        // Mise à jour
         await lastValueFrom(this.affairesService.update(this.affaireId, affaireData));
       } else {
+        // Création
         const res: any = await lastValueFrom(this.affairesService.create(affaireData));
-        // ... gestion des fichiers
+        // On récupère l'ID généré par le backend (souvent dans res.id ou res.data.id)
+        currentAffaireId = res.id || (res.data ? res.data.id : null);
       }
+
+      // ✅ Gestion des fichiers après la création/modification réussie
+      if (currentAffaireId && filesToUpload.length > 0) {
+        await this.uploadFiles(currentAffaireId, filesToUpload);
+      }
+
       this.formService.resetAllForms();
       this.router.navigate(['/affaires/list']);
     } catch (err) {

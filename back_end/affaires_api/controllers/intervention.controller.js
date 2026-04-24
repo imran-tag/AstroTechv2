@@ -44,7 +44,6 @@ class Intervention {
     }
 
     // ➕ Créer une nouvelle intervention
-    // ➕ Créer une nouvelle intervention
     static async apiCreate(req, res) {
 
         try {
@@ -149,8 +148,8 @@ class Intervention {
             montant_main_oeuvre: Number(montant_main_oeuvre || 0),
             montant_fournitures: Number(montant_fournitures || 0),
             // On transforme referent_ids en referents pour le service
-            referents: Array.isArray(referent_ids) 
-                ? referent_ids.map(Number).filter(id => !isNaN(id)) 
+            referents: Array.isArray(referent_ids)
+                ? referent_ids.map(Number).filter(id => !isNaN(id))
                 : [],
             createur_id: createur_id ? Number(createur_id) : null
         };
@@ -163,11 +162,11 @@ class Intervention {
             data: response
         });
 
-    } catch (error) {
+    } catch(error) {
         console.error("❌ Controller Error:", error);
         return res.status(500).json({ success: false, error: error.message });
     }
-}
+
 
     // ✏️ Modifier une intervention par ID
     static async apiUpdateById(req, res) {

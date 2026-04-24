@@ -562,7 +562,78 @@ class InterventionService {
       intervention.client = client;
 
       // ... Ajoutez ici la suite de votre code (Techniciens, Equipe, etc.) ...
+        /* ===================== 🔹 TECHNICIENS INDIVIDUELS ===================== */
+      const [techniciens] = await pool.execute(
+        `
+      SELECT t.id, t.nom, t.prenom, it.role
+      FROM technicien t
+      JOIN intervention_technicien it ON t.id = it.id_technicien
+      WHERE it.id_intervention = ?
+      `,
+        [id]
+      );
+      intervention.techniciens = techniciens || [];
 
+      /* ===================== 🔹 ÉQUIPE + CHEF + MEMBRES ===================== */
+      let equipe = null;
+      if (equipeId !== null) {
+        const [rows] = await pool.execute(
+          `
+        SELECT 
+          eq.id AS equipeId,
+          eq.nom AS equipeNom,
+          eq.description AS equipeDescription,
+          eq.chefId,
+          chef.nom AS chefNom,
+          chef.prenom AS chefPrenom,
+          chef.telephone AS chefTelephone,
+          chef.email AS chefEmail,
+          te.technicienId,
+          t.nom AS technicienNom,
+          t.prenom AS technicienPrenom,
+          te.dateAffectation
+        FROM equipe_technicien eq
+        LEFT JOIN technicien_equipe te ON te.equipeId = eq.id
+        LEFT JOIN technicien t ON t.id = te.technicienId
+        LEFT JOIN technicien chef ON chef.id = eq.chefId
+        WHERE eq.id = ?
+        ORDER BY eq.id, t.nom
+        `,
+          [equipeId]
+        );
+
+        if (rows.length > 0) {
+          equipe = {
+            id: rows[0].equipeId,
+            nom: rows[0].equipeNom,
+            description: rows[0].equipeDescription,
+            chef: rows[0].chefId
+              ? {
+                id: rows[0].chefId,
+                nom: rows[0].chefNom,
+                prenom: rows[0].chefPrenom,
+                telephone: rows[0].chefTelephone,
+                email: rows[0].chefEmail
+              }
+              : null,
+            techniciens: []
+          };
+
+          rows.forEach(row => {
+            if (row.technicienId && row.technicienId !== row.chefId) {
+              equipe.techniciens.push({
+                id: row.technicienId,
+                nom: row.technicienNom,
+                prenom: row.technicienPrenom,
+                dateAffectation: row.dateAffectation
+              });
+            }
+          });
+        }
+      }
+      intervention.equipe = equipe;
+
+      
       return intervention;
 
     } catch (err) {

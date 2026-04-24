@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../_services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SharedModule } from '../../_globale/shared/shared.module';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
