@@ -1,4 +1,6 @@
 const TechnicienService = require("../services/techniciens.services");
+const bcrypt = require('bcrypt');
+const pool = require('../db');
 
 class Technicien {
 
@@ -64,6 +66,17 @@ class Technicien {
             };
 
             const response = await TechnicienService.createRecord(record);
+
+            // Auto-create mobile login account if email + password provided
+            if (email && pwd) {
+                const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+                if (!existing.length) {
+                    const hash = await bcrypt.hash(pwd, 10);
+                    const full_name = `${prenom} ${nom}`;
+                    await pool.query('INSERT INTO users (email, password_hash, full_name) VALUES (?, ?, ?)', [email, hash, full_name]);
+                }
+            }
+
             res.status(201).json({ success: true, data: response });
 
         } catch (error) {
