@@ -1,85 +1,70 @@
-.avatar-container {
-  text-align: center;
-  border-radius: 8px;
+/* ---- Profile block ---- */
+.nav-profile {
+  padding: 10px 4px 16px !important;
+  margin-bottom: 8px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
 }
 
-.avatar-circle {
-  width: 50px;
-  height: 50px;
-  background-color: #00b4f1;
-  color: white;
-  font-weight: bold;
-  font-size: 20px;
+.nav-profile .nav-link {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+  text-decoration: none !important;
+  transition: background 0.18s ease !important;
+}
+
+.nav-profile .nav-link:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+.nav-profile .avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  margin: 0 auto 10px;
-}
-
-.avatar-name {
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-}
-
-/*** *** ***  */
-/* Style de base des liens */
-.sidebar .nav-link {
-  color: #555;             /* couleur normale */
-  padding: 10px 15px;
-  display: flex;
-  align-items: center;
-  transition: all 0.3s ease;
-  text-decoration: none;
-}
-
-/* Lien actif */
-.sidebar .nav-link.active {
-  color: #007BFF;          /* bleu pour le texte actif */
-  background-color: #E3F2FD; /* léger fond bleu */
-  border-left: 4px solid #007BFF; /* accent sur le côté */
-  font-weight: bold;
-}
-
-
-/*** *** *** **** ***/
-/* Titres personnalisés */
-.custom-title {
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-  color: #4f46e5;
+  flex-shrink: 0;
   letter-spacing: 0.5px;
 }
 
-/* Icônes personnalisées */
-.custom-icon {
-  font-size: 1.3rem;
-  color: #1f2937;
-  margin-right: 0.8rem;
-  transition: transform 0.2s, color 0.2s;
+.nav-profile .nav-profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
 }
 
-/* Effet hover */
-.nav-link:hover .custom-icon {
-  color: #4f46e5;
-  transform: scale(1.1);
+.profile-name {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Item actif */
-.nav-link.active .custom-title {
-  color: #1f2937;
+.profile-email {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-
-
-/**********************************************************/
-.custom-label {
-  font-weight: 700;           /* Texte en gras */
-  text-transform: uppercase;  /* Tout en majuscules */
-  font-size: 0.85rem;         /* Taille du texte */
-  color: #7B88FA;             /* Couleur personnalisée */
-  letter-spacing: 1px;        /* Espacement entre lettres */
-  padding-left: 1rem;         /* Décalage par rapport au bord */
+.profile-role {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.28);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
 }

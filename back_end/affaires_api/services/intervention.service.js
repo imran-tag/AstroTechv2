@@ -881,24 +881,24 @@ class InterventionService {
 FROM (
 
     -- 📷 Photos
-    SELECT 
+    SELECT
         intervention_id,
         'PHOTO' AS event_type,
         photo_type AS sub_type,
         captured_at AS event_date,
-        filename AS description
+        file_name AS description
     FROM intervention_photos
     WHERE intervention_id = ?
 
     UNION ALL
 
     -- ✍ Signatures
-    SELECT 
+    SELECT
         intervention_id,
         'SIGNATURE',
         signature_type,
         signed_at,
-        NULL
+        file_path
     FROM intervention_signatures
     WHERE intervention_id = ?
 
@@ -934,16 +934,60 @@ ORDER BY event_date ASC;`, [
     const grouped = {};
 
     rows.forEach(event => {
-      const day = event.event_date.toISOString().split('T')[0];
-
-      if (!grouped[day]) {
-        grouped[day] = [];
-      }
-
+      if (!event.event_date) return;
+      const day = new Date(event.event_date).toISOString().split('T')[0];
+      if (!grouped[day]) grouped[day] = [];
       grouped[day].push(event);
     });
 
     return grouped;
+  }
+
+  static async getRecap(interventionId) {
+    const [[workflow]] = await pool.query(
+      `SELECT security_checklist, quality_control, client_observations,
+              technical_observations_choice, additional_work_description,
+              quote_comment, completed_branches, started_at, completed_at,
+              travel_start_time, travel_end_time, travel_duration_minutes
+       FROM intervention_workflow WHERE intervention_id = ?`,
+      [interventionId]
+    );
+
+    const [photos] = await pool.query(
+      `SELECT id, photo_type, file_name, file_path, captured_at, latitude, longitude, comment
+       FROM intervention_photos WHERE intervention_id = ? ORDER BY captured_at ASC`,
+      [interventionId]
+    );
+
+    const [signatures] = await pool.query(
+      `SELECT signature_type, file_path, signed_at FROM intervention_signatures
+       WHERE intervention_id = ? ORDER BY signed_at ASC`,
+      [interventionId]
+    );
+
+    const [interruptions] = await pool.query(
+      `SELECT reason, custom_reason, started_at, ended_at, duration_minutes
+       FROM intervention_interruptions WHERE intervention_id = ? ORDER BY started_at ASC`,
+      [interventionId]
+    );
+
+    const parse = (val) => { try { return val ? JSON.parse(val) : null; } catch { return null; } };
+
+    return {
+      workflow: workflow ? {
+        ...workflow,
+        security_checklist: parse(workflow.security_checklist),
+        quality_control: parse(workflow.quality_control),
+        completed_branches: parse(workflow.completed_branches),
+      } : null,
+      photos: {
+        before: photos.filter(p => p.photo_type === 'before'),
+        after:  photos.filter(p => p.photo_type === 'after'),
+        other:  photos.filter(p => p.photo_type !== 'before' && p.photo_type !== 'after'),
+      },
+      signatures,
+      interruptions,
+    };
   }
 
 }

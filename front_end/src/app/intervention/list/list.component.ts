@@ -48,11 +48,17 @@ export class ListComponent implements OnInit {
   // ===================== INTERVENTIONS =====================
   loadInterventions(page: number = 1, search: string = '') {
     this.interventionService.getAllPaginated(page, this.limit, search)
-      .subscribe((res: any) => {
-        this.interventions = res.data;
-        this.currentPage = res.page;
-        this.totalPages = Math.ceil(res.total / res.limit);
-        this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+      .subscribe({
+        next: (res: any) => {
+          this.interventions = res.data;
+          this.currentPage = res.page;
+          this.totalPages = Math.ceil(res.total / res.limit);
+          this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+        },
+        error: (err) => {
+          console.error('Erreur chargement interventions', err);
+          alert('Impossible de charger les interventions. Vérifiez la connexion au serveur.');
+        }
       });
   }
 

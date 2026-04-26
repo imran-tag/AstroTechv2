@@ -1,0 +1,3 @@
+[      67ms] [LOG] Angular is running in development mode. @ http://localhost:4200/@fs/Users/imran/Downloads/astroTech/front_end/.angular/cache/19.2.16/astroTech/vite/deps/chunk-HPKVMBOH.js?v=1b5cbbd3:15047
+[      86ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3005/api/v1/affaires/dashboard/interventions:0
+[      86ms] [ERROR] ERROR HttpErrorResponse @ http://localhost:4200/@fs/Users/imran/Downloads/astroTech/front_end/.angular/cache/19.2.16/astroTech/vite/deps/chunk-HPKVMBOH.js?v=1b5cbbd3:5687

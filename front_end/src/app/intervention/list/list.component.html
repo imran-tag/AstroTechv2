@@ -35,7 +35,7 @@
 
             <div class="input-group input-group-sm">
               <span class="input-group-text border-0 bg-transparent pe-0">
-                <i class="fa fa-search"></i>
+                <i class="mdi mdi-magnify"></i>
               </span>
               <input type="text" class="form-control border-0 shadow-none ps-2 py-0 x-small"
                 placeholder="Rechercher par titre, numéro, mots-clés..." [(ngModel)]="searchTerm"
@@ -85,15 +85,15 @@
                     description' }}
                   </div>
                   <small class="text-primary fw-medium" *ngIf="i.client">
-                    <i class="fa fa-briefcase me-1"></i>
+                    <i class="mdi mdi-briefcase-outline me-1"></i>
                     {{ i.client.nom_client }}
                     <span class="text-muted mx-1">|</span>
-                    <i [ngClass]="i.client.type_client === 'organisation' ? 'fa-industry' : 'fa-user-circle'"
-                      class="fa me-1"></i>
+                    <i [ngClass]="i.client.type_client === 'organisation' ? 'mdi-factory' : 'mdi-account'"
+                      class="mdi me-1"></i>
                     <span class="text-capitalize">{{ i.client.type_client }}</span>
                   </small>
                   <small class="text-muted" *ngIf="!i.client">
-                    <i class="fa fa-spinner fa-spin me-1"></i> Chargement client...
+                    <i class="mdi mdi-loading mdi-spin me-1"></i> Chargement client...
                   </small>
                 </td>
 
@@ -106,7 +106,7 @@
 
                     <div *ngIf="i.techniciens && i.techniciens.length > 0; else noTech">
                       <small class="text-info fw-bold" [title]="getTechNames(i.techniciens)">
-                        <i class="fa fa-user me-1"></i>
+                        <i class="mdi mdi-account me-1"></i>
                         {{ i.techniciens[0].prenom }} {{ i.techniciens[0].nom }}
                         <span *ngIf="i.techniciens.length > 1" class="badge bg-info ms-1">
                           +{{ i.techniciens.length - 1 }}
@@ -117,7 +117,7 @@
                     <ng-template #noTech>
                       <div *ngIf="i.equipe; else unassigned">
                         <small class="text-primary fw-bold">
-                          <i class="fa fa-users me-1"></i>
+                          <i class="mdi mdi-account-group me-1"></i>
                           {{ i.equipe.nom }}
                           <span *ngIf="i.equipe.chef" class="ms-1 text-muted" style="font-size: 0.8em;">
                             (Chef: {{ i.equipe.chef.nom }})
@@ -128,7 +128,7 @@
 
                     <ng-template #unassigned>
                       <small class="text-muted italic">
-                        <i class="fa fa-exclamation-triangle me-1"></i>
+                        <i class="mdi mdi-alert-outline me-1"></i>
                         Non assigné
                       </small>
                     </ng-template>
@@ -147,17 +147,24 @@
                 </td>
 
                 <td class="text-nowrap pe-3">
-                  <div class="btn-group shadow-sm border rounded bg-white p-2">
-                    <button class="btn btn-xs btn-white border-end" (click)="duplicate(i)" title="Dupliquer"><i
-                        class="fa fa-copy text-secondary"></i></button>
-                    <button class="btn btn-xs btn-white border-end" (click)="onSelectIntervention(i)"
-                      title="Calendrier"><i class="fa fa-calendar text-info"></i></button>
-                    <button class="btn btn-xs btn-white border-end" (click)="openDetail(i.id)" title="Détails"><i
-                        class="fa fa-eye text-primary"></i></button>
-                    <button class="btn btn-xs btn-white border-end" (click)="editIntervention(i.id)" title="Modifier"><i
-                        class="fa fa-pencil text-warning"></i></button>
-                    <button class="btn btn-xs btn-white" (click)="deleteIntervention(i.id)" title="Supprimer"><i
-                        class="fa fa-trash text-danger"></i></button>
+                  <div class="intervention-table">
+                    <div class="btn-group-action">
+                      <button class="btn" (click)="duplicate(i)" title="Dupliquer">
+                        <i class="mdi mdi-content-copy text-secondary"></i>
+                      </button>
+                      <button class="btn" (click)="onSelectIntervention(i)" title="Calendrier">
+                        <i class="mdi mdi-calendar text-info"></i>
+                      </button>
+                      <button class="btn" (click)="openDetail(i.id)" title="Détails">
+                        <i class="mdi mdi-eye" style="color:var(--accent)"></i>
+                      </button>
+                      <button class="btn" (click)="editIntervention(i.id)" title="Modifier">
+                        <i class="mdi mdi-pencil" style="color:#d97706"></i>
+                      </button>
+                      <button class="btn" (click)="deleteIntervention(i.id)" title="Supprimer">
+                        <i class="mdi mdi-delete" style="color:var(--danger)"></i>
+                      </button>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -198,10 +205,10 @@
     </div>
   </div>
 
-  <div *ngIf="!interventions.length" class="col-12 text-center py-5 border rounded bg-light">
-    <div class="text-muted">
-      <i class="fa fa-wrench fa-3x mb-3 opacity-25"></i>
-      <p class="mb-0">Aucune intervention trouvée.</p>
+  <div *ngIf="!interventions.length" class="col-12">
+    <div class="empty-state">
+      <i class="mdi mdi-clipboard-text-off-outline empty-icon"></i>
+      <p>Aucune intervention trouvée.</p>
     </div>
   </div>
 </div>

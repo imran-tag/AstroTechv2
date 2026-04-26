@@ -16,6 +16,8 @@ export class EditComponent {
   showPassword: boolean = false;
   id!: number;
 
+  get isEdit(): boolean { return !!this.id; }
+
   constructor(
     private fb: FormBuilder,
     private technicienService: TechnicienService,

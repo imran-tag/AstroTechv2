@@ -3,6 +3,9 @@ const app = express();
 require("dotenv").config();
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 // Configuration
 const PORT = process.env.PORT || 3000;
@@ -14,6 +17,20 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Serve uploaded photos and signatures as static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Photo upload storage
+const PHOTOS_DIR = path.join(__dirname, 'uploads', 'photos');
+if (!fs.existsSync(PHOTOS_DIR)) fs.mkdirSync(PHOTOS_DIR, { recursive: true });
+const photoUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, PHOTOS_DIR),
+    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+});
+
 // === Import des Contrôleurs et Middlewares ===
 const { register, login, me } = require('./controllers/_auth.controller');
 const { authenticateToken } = require('./middlewares/auth.js');
@@ -24,6 +41,8 @@ const controllerAffaire = require('./controllers/affaires.controller.js');
 const DashboardController = require('./controllers/dashboard.controller');
 const MotCleLien = require('./controllers/mot_cle_liens.controller.js');
 const MotsClesController = require('./controllers/mots_cles.controller.js');
+const MobileController = require('./controllers/mobile.controller.js');
+const MobileService = require('./services/mobile.service.js');
 
 // ==========================================
 // 🔐 AUTHENTIFICATION
@@ -54,6 +73,7 @@ app.post(`${URI}/interventions`, authenticateToken, InterventionController.apiCr
 // 3. Routes avec ID (Actions sur une intervention spécifique)
 app.get(`${URI}/interventions/:id`, authenticateToken, InterventionController.apiGetById);
 app.get(`${URI}/interventions/:id/details`, authenticateToken, InterventionController.apiGetDetails);
+app.get(`${URI}/interventions/:id/recap`, authenticateToken, InterventionController.apiGetRecap);
 app.put(`${URI}/interventions/:id`, authenticateToken, InterventionController.apiUpdateById);
 app.delete(`${URI}/interventions/:id`, authenticateToken, InterventionController.apiDeleteById);
 
@@ -105,8 +125,36 @@ app.put(`${URI}/:id`, authenticateToken, controllerAffaire.apiUpdateById);
 app.delete(`${URI}/:id`, authenticateToken, controllerAffaire.apiDeleteById);
 
 // ==========================================
+// 📱 MOBILE API
+// ==========================================
+app.get(`${URI}/mobile/me`, authenticateToken, MobileController.getProfile);
+app.post(`${URI}/mobile/sync`, authenticateToken, MobileController.bulkSync);
+
+app.get(`${URI}/mobile/interventions`, authenticateToken, MobileController.getInterventions);
+app.get(`${URI}/mobile/interventions/:id`, authenticateToken, MobileController.getInterventionById);
+app.put(`${URI}/mobile/interventions/:id/status`, authenticateToken, MobileController.updateStatus);
+
+app.get(`${URI}/mobile/interventions/:id/workflow`, authenticateToken, MobileController.getWorkflow);
+app.post(`${URI}/mobile/interventions/:id/workflow`, authenticateToken, MobileController.createWorkflow);
+app.patch(`${URI}/mobile/interventions/:id/workflow`, authenticateToken, MobileController.updateWorkflow);
+
+app.get(`${URI}/mobile/interventions/:id/photos`, authenticateToken, MobileController.getPhotos);
+app.post(`${URI}/mobile/interventions/:id/photos`, authenticateToken, photoUpload.single('photo'), MobileController.uploadPhoto);
+app.delete(`${URI}/mobile/interventions/:id/photos/:photoId`, authenticateToken, MobileController.deletePhoto);
+
+app.post(`${URI}/mobile/interventions/:id/signature`, authenticateToken, MobileController.uploadSignature);
+app.post(`${URI}/mobile/interventions/:id/signatures/:type`, authenticateToken, MobileController.uploadTypedSignature);
+
+app.post(`${URI}/mobile/interventions/:id/interruptions`, authenticateToken, MobileController.createInterruption);
+app.patch(`${URI}/mobile/interventions/:id/interruptions/:interruptionId`, authenticateToken, MobileController.updateInterruption);
+
+// ==========================================
 // 🚀 LANCEMENT DU SERVEUR
 // ==========================================
+MobileService.initTables()
+  .then(() => console.log('✅ Mobile tables ready'))
+  .catch(err => console.error('⚠️  Mobile table init error:', err.message));
+
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ AstroTech Server running at http://localhost:${PORT}`);
     console.log(`🌐 API Base URL: ${URI}`);

@@ -222,8 +222,10 @@ export class EditComponent implements OnInit {
 
       this.formService.resetAllForms();
       this.router.navigate(['/affaires/list']);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erreur lors de la sauvegarde", err);
+      const msg = err?.error?.error || err?.message || 'Erreur inconnue';
+      alert(`Impossible de sauvegarder l'affaire : ${msg}`);
     } finally {
       this.loading = false;
     }

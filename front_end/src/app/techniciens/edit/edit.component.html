@@ -1,139 +1,119 @@
-<!-- *** Titre *** -->
-<div class="page-header">
-    <h3 class="page-title">Technicien</h3>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">{{ isEdit ? "Modifier le technicien" : "Nouveau technicien" }}</h3>
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a [routerLink]="['/techniciens/list']">Technicien</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Nouveau technicien</li>
-        </ol>
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
+        <li class="breadcrumb-item"><a routerLink="/techniciens/list">Techniciens</a></li>
+        <li class="breadcrumb-item active">{{ isEdit ? "Modification" : "Création" }}</li>
+      </ol>
     </nav>
+  </div>
 </div>
 
-<!-- *** Contenu *** -->
 <div class="row">
-    <div class="col-md-12">
-        <form [formGroup]="technicienForm" class="shadow p-3 mb-2 bg-body rounded">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Nom
-                        <strong class="text-danger">*</strong>
-                    </label>
-                    <input type="text" class="form-control form-control-sm" formControlName="nom">
+    <div class="col-lg-10 mx-auto">
+        <form [formGroup]="technicienForm" class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h6 class="text-uppercase small fw-bold text-muted mb-4">Informations personnelles</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Nom <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" formControlName="nom" placeholder="Nom">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Prénom <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" formControlName="prenom" placeholder="Prénom">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Date de naissance</label>
+                        <input type="date" class="form-control" formControlName="dateNaissance">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Spécialité <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" formControlName="specialite" placeholder="ex: Électricien, Peintre...">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold small">Certifications</label>
+                        <textarea class="form-control" formControlName="certifications" rows="2" placeholder="Certifications..."></textarea>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Prénom
-                        <strong class="text-danger">*</strong>
-                    </label>
-                    <input type="text" class="form-control form-control-sm" formControlName="prenom">
-                </div>
-            </div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">Date de naissance</label>
-                    <input type="date" class="form-control form-control-sm" formControlName="dateNaissance">
+                <hr class="opacity-10 mb-4">
+                <h6 class="text-uppercase small fw-bold text-muted mb-4">Contact & Sécurité</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Téléphone <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" formControlName="telephone" placeholder="06 ...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Email</label>
+                        <input type="email" class="form-control" formControlName="email" placeholder="email@example.com">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Mot de passe <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="pwd">
+                            <button class="btn btn-outline-light border text-secondary" (click)="showPassword = !showPassword" type="button">
+                                <i class="mdi" [ngClass]="showPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold small">Adresse</label>
+                        <textarea class="form-control" formControlName="adresse" rows="2" placeholder="Adresse complète..."></textarea>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Spécialité
-                        <strong class="text-danger">*</strong>
-                    </label>
-                    <input type="text" class="form-control form-control-sm" formControlName="specialite">
-                </div>
-            </div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">Adresse</label>
-                    <textarea class="form-control form-control-sm" formControlName="adresse"></textarea>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Certifications</label>
-                    <textarea class="form-control form-control-sm" formControlName="certifications"></textarea>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">
-                        Téléphone
-                        <strong class="text-danger">*</strong>
-                    </label>
-                    <input type="tel" class="form-control form-control-sm" formControlName="telephone">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control form-control-sm" formControlName="email">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">
-                        Mot de passe
-                        <strong class="text-danger">*</strong>
-                    </label>
-                    <div class="input-group mb-3">
-                        <input [type]="showPassword ? 'text' : 'password'" class="form-control form-control-sm" formControlName="pwd"
-                            aria-describedby="btn-show-pwd">
-                        <button class="btn btn-sm btn-outline-secondary border-0"
-                            (click)="showPassword = !showPassword" type="button" id="btn-show-pwd">
-                            <i class="mdi" [ngClass]="showPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
-                        </button>
+                <hr class="opacity-10 mb-4">
+                <h6 class="text-uppercase small fw-bold text-muted mb-4">Professionnel</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Type de contrat</label>
+                        <select class="form-select" formControlName="typeContrat">
+                            <option value="">Sélectionner</option>
+                            <option value="CDI">CDI</option>
+                            <option value="CDD">CDD</option>
+                            <option value="Freelance">Freelance</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Salaire</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" formControlName="salaire" step="0.01">
+                            <span class="input-group-text bg-light smaller">€</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Statut</label>
+                        <select class="form-select" formControlName="statut">
+                            <option value="Actif">Actif</option>
+                            <option value="Inactif">Inactif</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Expérience (années)</label>
+                        <input type="number" class="form-control" formControlName="experience">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Zone d'intervention</label>
+                        <input type="text" class="form-control" formControlName="zoneIntervention">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Date d'embauche</label>
+                        <input type="date" class="form-control" formControlName="dateEmbauche">
                     </div>
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Expérience (années)</label>
-                    <input type="number" class="form-control form-control-sm" formControlName="experience">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Zone d’intervention</label>
-                    <input type="text" class="form-control form-control-sm" formControlName="zoneIntervention">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Date d’embauche</label>
-                    <input type="date" class="form-control form-control-sm" formControlName="dateEmbauche">
-                </div>
+            <div class="card-footer bg-light border-0 p-3 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary px-4" [routerLink]="['/techniciens/list']">Annuler</button>
+                <button type="button" class="btn btn-primary px-4" (click)="onSubmit()">
+                    <i class="mdi mdi-check me-1"></i> Sauvegarder
+                </button>
             </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Type de contrat</label>
-                    <select class="form-select form-select-sm" formControlName="typeContrat">
-                        <option value="">Sélectionner</option>
-                        <option value="CDI">CDI</option>
-                        <option value="CDD">CDD</option>
-                        <option value="Freelance">Freelance</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Salaire</label>
-                    <input type="number" class="form-control form-control-sm" formControlName="salaire" step="0.01">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Statut</label>
-                    <select class="form-select form-select-sm" formControlName="statut">
-                        <option value="Actif">Actif</option>
-                        <option value="Inactif">Inactif</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="btns-eng" class="card card-nav shadow-sm">
-                <div class="card-body text-center">
-                    <button type="button" class="btn btn-light w-100 mb-2 btn-sm" [routerLink]="['/techniciens/list']">
-                        Annuler
-                    </button>
-                    <button class="btn btn-success w-100 mb-2 btn-sm" (click)="onSubmit()">
-                        Sauvegarder
-                    </button>
-                </div>
-            </div>
-
         </form>
-        <p class="small text-muted">
+        <p class="smaller text-muted text-center">
            Les champs marqués d'un <span class="text-danger">*</span> sont obligatoires.
         </p>
     </div>

@@ -11,6 +11,7 @@ export const environment = {
   url_referent: "http://localhost:3003/api/v1",
   url_technicien: "http://localhost:3004/api/v1",
   url_affaire: "http://localhost:3005/api/v1",
+  url_affaire_uploads: "http://localhost:3005/uploads",
   url_upload: "http://localhost:3002/uploads"
 };
 

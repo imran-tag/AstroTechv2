@@ -451,6 +451,17 @@ class Intervention {
         }
     }
 
+    static async apiGetRecap(req, res) {
+        try {
+            const { id } = req.params;
+            const response = await InterventionService.getRecap(id);
+            res.json(response);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+
 }
 
 module.exports = Intervention;

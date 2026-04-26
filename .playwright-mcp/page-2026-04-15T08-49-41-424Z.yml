@@ -1,0 +1,201 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - link "AstroTech" [ref=e6] [cursor=pointer]:
+      - /url: "#"
+      - generic [ref=e7]: AstroTech
+    - generic [ref=e8]:
+      - button "󰍜" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]: 󰍜
+      - generic [ref=e13]:
+        - generic [ref=e14]: 󰍉
+        - textbox "Rechercher…" [ref=e15]
+      - list [ref=e16]:
+        - listitem [ref=e17]:
+          - generic [ref=e18]:
+            - generic [ref=e19]: AU
+            - generic [ref=e20]:
+              - generic [ref=e21]: Admin User
+              - generic [ref=e22]: user
+        - listitem [ref=e23]:
+          - button "󰗽" [ref=e24] [cursor=pointer]:
+            - generic [ref=e25]: 󰗽
+  - generic [ref=e26]:
+    - navigation [ref=e27]:
+      - list [ref=e28]:
+        - listitem [ref=e29]:
+          - generic [ref=e30]:
+            - generic [ref=e31]: AU
+            - generic [ref=e32]:
+              - generic [ref=e33]: Admin User
+              - generic [ref=e34]: user
+        - listitem [ref=e35]:
+          - link "󰨝 Tableau de bord" [ref=e36] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=e37]: 󰨝
+            - generic [ref=e38]: Tableau de bord
+        - listitem [ref=e39]: Listing
+        - listitem [ref=e40]:
+          - link "󱓷 Affaires" [ref=e41] [cursor=pointer]:
+            - /url: /affaires/list
+            - generic [ref=e42]: 󱓷
+            - generic [ref=e43]: Affaires
+        - listitem [ref=e44]:
+          - link "󱋼 Interventions" [ref=e45] [cursor=pointer]:
+            - /url: /interventions/list
+            - generic [ref=e46]: 󱋼
+            - generic [ref=e47]: Interventions
+        - listitem [ref=e48]:
+          - link "󰮜 Annuaire" [ref=e49] [cursor=pointer]:
+            - /url: /clients/list
+            - generic [ref=e50]: 󰮜
+            - generic [ref=e51]: Annuaire
+        - listitem [ref=e52]:
+          - link "󱃊 Référents" [ref=e53] [cursor=pointer]:
+            - /url: /referents/list
+            - generic [ref=e54]: 󱃊
+            - generic [ref=e55]: Référents
+        - listitem [ref=e56]:
+          - link "󱢛 Techniciens" [ref=e57] [cursor=pointer]:
+            - /url: /techniciens/list
+            - generic [ref=e58]: 󱢛
+            - generic [ref=e59]: Techniciens
+        - listitem [ref=e60]:
+          - link "󰭘 Équipe Techniciens" [ref=e61] [cursor=pointer]:
+            - /url: /techniciens/equipe
+            - generic [ref=e62]: 󰭘
+            - generic [ref=e63]: Équipe Techniciens
+        - listitem [ref=e64]: Actions
+        - listitem [ref=e65]:
+          - link "󰻭 Nouvelle Affaire" [ref=e66] [cursor=pointer]:
+            - /url: /affaires/edit
+            - generic [ref=e67]: 󰻭
+            - generic [ref=e68]: Nouvelle Affaire
+        - listitem [ref=e69]:
+          - link "󰸘 Planning" [ref=e70] [cursor=pointer]:
+            - /url: /interventions/planning
+            - generic [ref=e71]: 󰸘
+            - generic [ref=e72]: Planning
+    - generic [ref=e73]:
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - heading "Techniciens" [level=3] [ref=e78]
+            - navigation "breadcrumb" [ref=e79]:
+              - list [ref=e80]:
+                - listitem [ref=e81]:
+                  - link "Home" [ref=e82] [cursor=pointer]:
+                    - /url: /dashboard
+                - listitem [ref=e83]: / Techniciens
+          - button "󰐕 Nouveau technicien" [ref=e84] [cursor=pointer]:
+            - generic [ref=e85]: 󰐕
+            - text: Nouveau technicien
+        - generic [ref=e87]:
+          - generic [ref=e90]:
+            - textbox "Rechercher un technicien..." [ref=e91]
+            - generic [ref=e93]: 󰍉
+          - table [ref=e97]:
+            - rowgroup [ref=e98]:
+              - row "Technicien Téléphone Email Mot de passe Spécialité Actions" [ref=e99]:
+                - columnheader "Technicien" [ref=e100]
+                - columnheader "Téléphone" [ref=e101]
+                - columnheader "Email" [ref=e102]
+                - columnheader "Mot de passe" [ref=e103]
+                - columnheader "Spécialité" [ref=e104]
+                - columnheader "Actions" [ref=e105]
+            - rowgroup [ref=e106]:
+              - 'row "t3 technician 3 ID: #11 0612345678 technician3@astro.com •••••••• 󰈈 HVAC 󰏫 󰆴" [ref=e107]':
+                - 'cell "t3 technician 3 ID: #11" [ref=e108]':
+                  - generic [ref=e109]:
+                    - generic [ref=e110]: t3
+                    - generic [ref=e111]:
+                      - generic [ref=e112]: technician 3
+                      - generic [ref=e113]: "ID: #11"
+                - cell "0612345678" [ref=e114]
+                - cell "technician3@astro.com" [ref=e115]
+                - cell "•••••••• 󰈈" [ref=e116]:
+                  - generic [ref=e117]:
+                    - generic [ref=e118]: ••••••••
+                    - button "󰈈" [ref=e119] [cursor=pointer]:
+                      - generic [ref=e120]: 󰈈
+                - cell "HVAC" [ref=e121]:
+                  - generic [ref=e122]: HVAC
+                - cell "󰏫 󰆴" [ref=e123]:
+                  - generic [ref=e124]:
+                    - button "󰏫" [ref=e125] [cursor=pointer]:
+                      - generic [ref=e126]: 󰏫
+                    - button "󰆴" [ref=e127] [cursor=pointer]:
+                      - generic [ref=e128]: 󰆴
+              - 'row "t2 technician 2 ID: #10 0612345678 technician2@astro.com •••••••• 󰈈 HVAC 󰏫 󰆴" [ref=e129]':
+                - 'cell "t2 technician 2 ID: #10" [ref=e130]':
+                  - generic [ref=e131]:
+                    - generic [ref=e132]: t2
+                    - generic [ref=e133]:
+                      - generic [ref=e134]: technician 2
+                      - generic [ref=e135]: "ID: #10"
+                - cell "0612345678" [ref=e136]
+                - cell "technician2@astro.com" [ref=e137]
+                - cell "•••••••• 󰈈" [ref=e138]:
+                  - generic [ref=e139]:
+                    - generic [ref=e140]: ••••••••
+                    - button "󰈈" [ref=e141] [cursor=pointer]:
+                      - generic [ref=e142]: 󰈈
+                - cell "HVAC" [ref=e143]:
+                  - generic [ref=e144]: HVAC
+                - cell "󰏫 󰆴" [ref=e145]:
+                  - generic [ref=e146]:
+                    - button "󰏫" [ref=e147] [cursor=pointer]:
+                      - generic [ref=e148]: 󰏫
+                    - button "󰆴" [ref=e149] [cursor=pointer]:
+                      - generic [ref=e150]: 󰆴
+              - 'row "t1 technician 1 ID: #9 0612345678 technician1@astro.com •••••••• 󰈈 HVAC 󰏫 󰆴" [ref=e151]':
+                - 'cell "t1 technician 1 ID: #9" [ref=e152]':
+                  - generic [ref=e153]:
+                    - generic [ref=e154]: t1
+                    - generic [ref=e155]:
+                      - generic [ref=e156]: technician 1
+                      - generic [ref=e157]: "ID: #9"
+                - cell "0612345678" [ref=e158]
+                - cell "technician1@astro.com" [ref=e159]
+                - cell "•••••••• 󰈈" [ref=e160]:
+                  - generic [ref=e161]:
+                    - generic [ref=e162]: ••••••••
+                    - button "󰈈" [ref=e163] [cursor=pointer]:
+                      - generic [ref=e164]: 󰈈
+                - cell "HVAC" [ref=e165]:
+                  - generic [ref=e166]: HVAC
+                - cell "󰏫 󰆴" [ref=e167]:
+                  - generic [ref=e168]:
+                    - button "󰏫" [ref=e169] [cursor=pointer]:
+                      - generic [ref=e170]: 󰏫
+                    - button "󰆴" [ref=e171] [cursor=pointer]:
+                      - generic [ref=e172]: 󰆴
+              - 'row "PN Prenom Nom ID: #8 0612345678 technician@mail.com •••••••• 󰈈 Maintenance 󰏫 󰆴" [ref=e173]':
+                - 'cell "PN Prenom Nom ID: #8" [ref=e174]':
+                  - generic [ref=e175]:
+                    - generic [ref=e176]: PN
+                    - generic [ref=e177]:
+                      - generic [ref=e178]: Prenom Nom
+                      - generic [ref=e179]: "ID: #8"
+                - cell "0612345678" [ref=e180]
+                - cell "technician@mail.com" [ref=e181]
+                - cell "•••••••• 󰈈" [ref=e182]:
+                  - generic [ref=e183]:
+                    - generic [ref=e184]: ••••••••
+                    - button "󰈈" [ref=e185] [cursor=pointer]:
+                      - generic [ref=e186]: 󰈈
+                - cell "Maintenance" [ref=e187]:
+                  - generic [ref=e188]: Maintenance
+                - cell "󰏫 󰆴" [ref=e189]:
+                  - generic [ref=e190]:
+                    - button "󰏫" [ref=e191] [cursor=pointer]:
+                      - generic [ref=e192]: 󰏫
+                    - button "󰆴" [ref=e193] [cursor=pointer]:
+                      - generic [ref=e194]: 󰆴
+      - contentinfo [ref=e196]:
+        - generic [ref=e197]:
+          - generic [ref=e198]:
+            - text: © 2025
+            - link "Zineb SENNAN" [ref=e199] [cursor=pointer]:
+              - /url: "#"
+            - text: . Tous droits réservés.
+          - generic [ref=e200]: AstroTech 2.0

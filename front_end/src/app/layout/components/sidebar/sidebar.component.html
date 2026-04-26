@@ -1,104 +1,102 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
   <ul class="nav">
+
+    <!-- Profile block -->
     <li class="nav-item nav-profile">
       <a [routerLink]="['/profile']" class="nav-link">
-        <div class="avatar-container">
-          <div class="avatar-circle">{{ initials }}</div>
-        </div>
-        <div [routerLink]="['/profile']" class="nav-profile-text d-flex flex-column">
-          <span class="font-weight-bold mb-2">{{currentUser?.full_name}}</span>
-          <span class="font-weight-bold text-small mb-2">{{currentUser?.email}}</span>
-          <span class="text-secondary text-small">{{currentUser?.role}}</span>
+        <div class="nav-profile-text">
+          <span class="profile-name">{{ currentUser?.full_name }}</span>
+          <span class="profile-email">{{ currentUser?.email }}</span>
+          <span class="profile-role">{{ currentUser?.role }}</span>
         </div>
       </a>
     </li>
 
+    <!-- Dashboard -->
     <li class="nav-item">
       <a class="nav-link" routerLink="dashboard" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
-        <span class="menu-title">Tableau de bord</span>
         <i class="mdi mdi-view-dashboard menu-icon"></i>
+        <span class="menu-title">Tableau de bord</span>
       </a>
     </li>
-    
+
     <li class="nav-item">
-      <span class="sidebar-label custom-label">LISTING</span>
+      <span class="sidebar-label">LISTING</span>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="affaires/list" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
-        <span class="menu-title">Affaires</span>
         <i class="mdi mdi-book-multiple menu-icon"></i>
+        <span class="menu-title">Affaires</span>
       </a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="interventions/list" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
-        <span class="menu-title">Intervention</span>
         <i class="mdi mdi-map-marker-multiple menu-icon"></i>
+        <span class="menu-title">Interventions</span>
       </a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="clients/list" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
-        <span class="menu-title">Annuaire</span>
         <i class="mdi mdi-folder-account menu-icon"></i>
+        <span class="menu-title">Annuaire</span>
       </a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="referents/list" routerLinkActive="active">
-        <span class="menu-title">Référents</span>
         <i class="mdi mdi-account-tie menu-icon"></i>
+        <span class="menu-title">Référents</span>
       </a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="techniciens/list" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
-        <span class="menu-title">Techniciens</span>
         <i class="mdi mdi-account-wrench menu-icon"></i>
+        <span class="menu-title">Techniciens</span>
       </a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="techniciens/equipe" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
-        <span class="menu-title">Equipe Techniciens</span>
         <i class="mdi mdi-account-group menu-icon"></i>
+        <span class="menu-title">Équipe Techniciens</span>
       </a>
     </li>
 
-   <!-- *** *** *** **** **** *** -->
-
     <li class="nav-item">
-      <span class="sidebar-label custom-label">ACTIONS</span>
+      <span class="sidebar-label">ACTIONS</span>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="affaires/edit" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
-        <span class="menu-title">Nouvelle Affaire</span>
         <i class="mdi mdi-file-plus menu-icon"></i>
+        <span class="menu-title">Nouvelle Affaire</span>
       </a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="interventions" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
-        <span class="menu-title">Intervention</span>
         <i class="mdi mdi-clipboard-plus menu-icon"></i>
+        <span class="menu-title">Nouvelle Intervention</span>
       </a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="interventions/planning" routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
-        <span class="menu-title">Planning</span>
         <i class="mdi mdi-calendar menu-icon"></i>
+        <span class="menu-title">Planning</span>
       </a>
     </li>
 

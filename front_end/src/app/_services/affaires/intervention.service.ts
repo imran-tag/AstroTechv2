@@ -123,4 +123,8 @@ export class InterventionService {
     return this.http.get(`${this.baseUrl}/${id}/details`);
   }
 
+  getInterventionRecap(id: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${id}/recap`);
+  }
+
 }

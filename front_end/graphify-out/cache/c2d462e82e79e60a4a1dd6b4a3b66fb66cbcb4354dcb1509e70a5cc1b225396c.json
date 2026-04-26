@@ -1,0 +1,1 @@
+{"nodes": [{"id": "logo_svg", "label": "AstroTech Logo (SVG Full)", "file_type": "image", "source_file": "public/assets/images/logo.svg"}], "edges": [{"source": "logo_svg", "target": "brand_identity_astrotech", "relation": "implements", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "public/assets/images/logo.svg", "weight": 1.0}], "hyperedges": []}

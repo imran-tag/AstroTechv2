@@ -1,45 +1,58 @@
-<!-- *** Titre *** -->
-<div class="page-header mb-3">
-  <h3 class="page-title">Intervention</h3>
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a [routerLink]="['/interventions/list']">Intervention</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ isEdit ? "Modification de l'intervention" : "Création de l'intervention" }}
-      </li>
-    </ol>
-  </nav>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">{{ isEdit ? "Modifier l'intervention" : "Nouvelle intervention" }}</h3>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
+        <li class="breadcrumb-item"><a routerLink="/interventions/list">Interventions</a></li>
+        <li class="breadcrumb-item active">{{ isEdit ? "Modification" : "Création" }}</li>
+      </ol>
+    </nav>
+  </div>
 </div>
 
-<!-- *** Contenu *** -->
 <div class="row" *ngIf="formReady">
     <div class="col-md-12">
-        <div class="steps">
+        <!-- Progress Bar -->
+        <div class="card mb-4">
+          <div class="card-body py-3">
+            <div class="d-flex justify-content-between position-relative">
+              <div class="step-line" [style.width]="step === 1 ? '50%' : '100%'" style="position: absolute; height: 2px; background: #eee; top: 15px; left: 0; z-index: 1; transition: 0.3s;"></div>
+              <div class="step-line-active" [style.width]="step === 1 ? '0%' : '50%'" style="position: absolute; height: 2px; background: var(--primary-color); top: 15px; left: 0; z-index: 2; transition: 0.3s;"></div>
+
+              <div class="d-flex flex-column align-items-center" style="z-index: 3; width: 100px;">
+                <div class="avatar-circle-sm" [class.bg-primary]="step >= 1" [class.bg-light]="step < 1" [class.text-white]="step >= 1">1</div>
+                <span class="smaller fw-bold mt-1">Général</span>
+              </div>
+              <div class="d-flex flex-column align-items-center" style="z-index: 3; width: 100px;">
+                <div class="avatar-circle-sm" [class.bg-primary]="step >= 2" [class.bg-light]="step < 2" [class.text-white]="step >= 2">2</div>
+                <span class="smaller fw-bold mt-1">Détails</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="steps mb-4">
             <app-etape1 *ngIf="step === 1" [form]="formService.formStep1"></app-etape1>
             <app-etape2 *ngIf="step === 2" [form]="formService.formStep2"></app-etape2>
         </div>
 
-        <div class="navigation mt-3">
-            <button class="btn btn-gradient-info btn-rounded btn-fw float-end mx-2" (click)="nextStep()" [disabled]="step === 2">Suivant</button>
-            <button class="btn btn-gradient-info btn-rounded btn-fw float-end" (click)="previousStep()" [disabled]="step === 1">Précédent</button>
-        </div>
+        <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-3 shadow-sm sticky-bottom" style="bottom: 20px;">
+            <button class="btn btn-secondary px-4" (click)="annuler()">
+              <i class="mdi mdi-close me-1"></i> Annuler
+            </button>
 
-        <div class="card card-nav shadow-sm action-save" style="width: 250px;" *ngIf="step === 2">
-           <div class="card-body text-center">
-                <button type="button" class="btn btn-light w-100 mb-2 btn-sm" (click)="annuler()">
-                  Annuler
+            <div class="d-flex gap-2">
+                <button class="btn btn-light border px-4" (click)="previousStep()" [disabled]="step === 1">
+                  <i class="mdi mdi-chevron-left me-1"></i> Précédent
                 </button>
-                <button (click)="submit()" class="btn btn-success w-100 mb-2 btn-sm" style="background-color: #5cc6b4; border:none;">
-                  Sauvegarder
+                <button *ngIf="step < 2" class="btn btn-primary px-4" (click)="nextStep()">
+                  Suivant <i class="mdi mdi-chevron-right ms-1"></i>
                 </button>
-
+                <button *ngIf="step === 2" class="btn btn-success px-4" (click)="submit()">
+                  <i class="mdi mdi-check me-1"></i> Sauvegarder
+                </button>
             </div>
         </div>
-
-
-
-
     </div>
 </div>

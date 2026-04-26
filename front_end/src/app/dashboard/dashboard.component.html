@@ -1,14 +1,16 @@
 <div class="container-fluid py-4 bg-light min-vh-100">
 
-  <div *ngIf="(!leftBlocs || leftBlocs.length === 0) && (!rightBlocs || rightBlocs.length === 0)" 
-       class="d-flex flex-column align-items-center justify-content-center mt-5 p-5 bg-white shadow-sm rounded-3 border border-2 border-dashed text-center">
-    <div class="icon-circle-lg bg-light text-secondary mb-3 shadow-sm" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-      <i class="mdi mdi-database-off fs-1"></i>
+  <div *ngIf="(!leftBlocs || leftBlocs.length === 0) && (!rightBlocs || rightBlocs.length === 0)"
+       class="d-flex align-items-center justify-content-center" style="min-height: 60vh;">
+    <div class="dashboard-empty">
+      <div class="empty-icon-wrap">
+        <i class="mdi mdi-view-dashboard-outline"></i>
+      </div>
+      <h5 class="fw-bold mb-2" style="color:var(--text-primary)">Tableau de bord vide</h5>
+      <p class="text-muted smaller">
+        Aucune intervention ni statistique disponible pour le moment. Créez votre première intervention pour commencer.
+      </p>
     </div>
-    <h5 class="fw-bold text-dark">Aucune donnée à afficher</h5>
-    <p class="text-muted mx-auto" style="max-width: 400px;">
-      Votre tableau de bord est actuellement vide. Il n'y a aucune intervention ni statistique disponible pour le moment.
-    </p>
   </div>
 
   <ng-container *ngIf="(leftBlocs && leftBlocs.length > 0) || (rightBlocs && rightBlocs.length > 0)">

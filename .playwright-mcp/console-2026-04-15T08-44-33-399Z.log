@@ -1,0 +1,15 @@
+[     360ms] [LOG] Angular is running in development mode. @ http://localhost:4200/@fs/Users/imran/Downloads/astroTech/front_end/.angular/cache/19.2.16/astroTech/vite/deps/chunk-HPKVMBOH.js?v=1b5cbbd3:15047
+[     390ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:4200/login:0
+[  108966ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3001/api/v1/auth/login:0
+[  131307ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3001/api/v1/auth/login:0
+[  141001ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3005/api/v1/affaires/dashboard/interventions:0
+[  141004ms] [ERROR] ERROR HttpErrorResponse @ http://localhost:4200/@fs/Users/imran/Downloads/astroTech/front_end/.angular/cache/19.2.16/astroTech/vite/deps/chunk-HPKVMBOH.js?v=1b5cbbd3:5687
+[  248926ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:4200/@vite/client:911
+[  248927ms] [ERROR] WebSocket connection to 'ws://localhost:4200/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:4200/@vite/client:985
+[  249930ms] [ERROR] WebSocket connection to 'ws://localhost:4200/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:4200/@vite/client:985
+[  250933ms] [ERROR] WebSocket connection to 'ws://localhost:4200/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:4200/@vite/client:985
+[  251935ms] [ERROR] WebSocket connection to 'ws://localhost:4200/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:4200/@vite/client:985
+[  252938ms] [ERROR] WebSocket connection to 'ws://localhost:4200/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:4200/@vite/client:985
+[  254073ms] [LOG] Angular is running in development mode. @ http://localhost:4200/@fs/Users/imran/Downloads/astroTech/front_end/.angular/cache/19.2.16/astroTech/vite/deps/chunk-HPKVMBOH.js?v=1b5cbbd3:15047
+[  254108ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3005/api/v1/affaires/dashboard/interventions:0
+[  254113ms] [ERROR] ERROR HttpErrorResponse @ http://localhost:4200/@fs/Users/imran/Downloads/astroTech/front_end/.angular/cache/19.2.16/astroTech/vite/deps/chunk-HPKVMBOH.js?v=1b5cbbd3:5687

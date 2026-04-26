@@ -1,12 +1,49 @@
 const db = require('../db');
 const bcrypt = require('bcrypt');
 
+const SALT_ROUNDS = 10;
+
 class TechnicienService {
 
+  // Keep users table in sync with technician credentials
+  static async _syncUserAccount({ email, pwd, nom, prenom, oldEmail = null }) {
+    if (!email || !pwd) return;
+
+    const fullName = `${prenom} ${nom}`.trim();
+    const hash = await bcrypt.hash(pwd, SALT_ROUNDS);
+
+    if (oldEmail && oldEmail !== email) {
+      // Email changed — update the existing user row
+      await db.execute(
+        `UPDATE users SET email = ?, password_hash = ?, full_name = ? WHERE email = ? AND role = 'technician'`,
+        [email, hash, fullName, oldEmail]
+      );
+      return;
+    }
+
+    // Upsert: update if exists, insert if not
+    const [rows] = await db.execute('SELECT id FROM users WHERE email = ?', [email]);
+    if (rows.length) {
+      await db.execute(
+        `UPDATE users SET password_hash = ?, full_name = ? WHERE email = ?`,
+        [hash, fullName, email]
+      );
+    } else {
+      await db.execute(
+        `INSERT INTO users (email, password_hash, full_name, role) VALUES (?, ?, ?, 'technician')`,
+        [email, hash, fullName]
+      );
+    }
+  }
+
+  static async _deleteUserAccount(email) {
+    if (!email) return;
+    await db.execute(`DELETE FROM users WHERE email = ? AND role = 'technician'`, [email]);
+  }
+
   static async createRecord(record) {
-    // const hashedPassword = await bcrypt.hash(record.mot_de_passe, 10);
     const query = `
-      INSERT INTO technicien 
+      INSERT INTO technicien
       (nom, prenom, dateNaissance, adresse, telephone, email, pwd, specialite, certifications, experience, zoneIntervention, dateEmbauche, typeContrat, salaire, statut, createur_id)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
@@ -30,14 +67,24 @@ class TechnicienService {
       record.createur_id
     ]);
 
+    await TechnicienService._syncUserAccount({
+      email: record.email,
+      pwd: record.pwd,
+      nom: record.nom,
+      prenom: record.prenom,
+    });
+
     return { id: result.insertId, ...record };
   }
 
   static async updateRecordById(record, id) {
+    // Fetch the current email before updating so we can detect changes
+    const existing = await TechnicienService.getRecordById(id);
+
     const query = `
-      UPDATE technicien 
-      SET nom = ?, prenom = ?, dateNaissance = ?, adresse = ?, telephone = ?, email = ?, 
-          pwd = ?, specialite = ?, certifications = ?, experience = ?, zoneIntervention = ?, 
+      UPDATE technicien
+      SET nom = ?, prenom = ?, dateNaissance = ?, adresse = ?, telephone = ?, email = ?,
+          pwd = ?, specialite = ?, certifications = ?, experience = ?, zoneIntervention = ?,
           dateEmbauche = ?, typeContrat = ?, salaire = ?, statut = ?
       WHERE id = ?
     `;
@@ -61,12 +108,25 @@ class TechnicienService {
       id,
     ]);
 
+    await TechnicienService._syncUserAccount({
+      email: record.email,
+      pwd: record.pwd,
+      nom: record.nom,
+      prenom: record.prenom,
+      oldEmail: existing?.email,
+    });
+
     return { message: `Technicien (${id}) mis à jour avec succès.` };
   }
 
   static async deleteRecordById(id) {
+    const existing = await TechnicienService.getRecordById(id);
+
     const query = `DELETE FROM technicien WHERE id = ?;`;
     await db.execute(query, [id]);
+
+    await TechnicienService._deleteUserAccount(existing?.email);
+
     return { message: `L'identifiant (${id}) est supprimé avec succès.` };
   }
 

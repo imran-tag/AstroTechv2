@@ -56,17 +56,15 @@ class DashboardService {
       ti.id AS type_id,
       ti.categorie,
       ti.libelle AS type,
-      SUM(CASE WHEN i.date_debut_intervention IS NOT NULL THEN 1 ELSE 0 END) AS PLANIFIE,
-      SUM(CASE WHEN i.date_debut_intervention IS NULL AND LOWER(i.etat) LIKE '%cours%' THEN 1 ELSE 0 END) AS EN_COURS,
-      SUM(CASE WHEN i.date_debut_intervention IS NULL AND LOWER(i.etat) LIKE 'terminee_avec_succes%' THEN 1 ELSE 0 END) AS TERMINE,
+      SUM(CASE WHEN LOWER(i.etat) LIKE 'planifie%' OR i.etat IS NULL THEN 1 ELSE 0 END) AS PLANIFIE,
+      SUM(CASE WHEN LOWER(i.etat) LIKE '%cours%' THEN 1 ELSE 0 END) AS EN_COURS,
+      SUM(CASE WHEN LOWER(i.etat) LIKE 'terminee%' THEN 1 ELSE 0 END) AS TERMINE,
       COUNT(*) AS TOTAL
 
     FROM intervention i
     JOIN intervention_type ti ON ti.id = i.type_id
 
     WHERE ti.actif = 1
-      AND i.archive = 0
-      AND NOT (i.date_debut_intervention IS NULL AND LOWER(i.etat) LIKE 'terminee_avec_interruption%')
 
     GROUP BY ti.id, ti.categorie, ti.libelle
     

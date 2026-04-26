@@ -1,0 +1,92 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - link "AstroTech" [ref=e6] [cursor=pointer]:
+      - /url: "#"
+      - generic [ref=e7]: AstroTech
+    - generic [ref=e8]:
+      - button "󰍜" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]: 󰍜
+      - generic [ref=e13]:
+        - generic [ref=e14]: 󰍉
+        - textbox "Rechercher…" [ref=e15]
+      - list [ref=e16]:
+        - listitem [ref=e17]:
+          - generic [ref=e18]:
+            - generic [ref=e19]: AU
+            - generic [ref=e20]:
+              - generic [ref=e21]: Admin User
+              - generic [ref=e22]: user
+        - listitem [ref=e23]:
+          - button "󰗽" [ref=e24] [cursor=pointer]:
+            - generic [ref=e25]: 󰗽
+  - generic [ref=e26]:
+    - navigation [ref=e27]:
+      - list [ref=e28]:
+        - listitem [ref=e29]:
+          - generic [ref=e30]:
+            - generic [ref=e31]: AU
+            - generic [ref=e32]:
+              - generic [ref=e33]: Admin User
+              - generic [ref=e34]: user
+        - listitem [ref=e35]:
+          - link "󰨝 Tableau de bord" [ref=e36] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=e37]: 󰨝
+            - generic [ref=e38]: Tableau de bord
+        - listitem [ref=e39]: Listing
+        - listitem [ref=e40]:
+          - link "󱓷 Affaires" [ref=e41] [cursor=pointer]:
+            - /url: /affaires/list
+            - generic [ref=e42]: 󱓷
+            - generic [ref=e43]: Affaires
+        - listitem [ref=e44]:
+          - link "󱋼 Interventions" [ref=e45] [cursor=pointer]:
+            - /url: /interventions/list
+            - generic [ref=e46]: 󱋼
+            - generic [ref=e47]: Interventions
+        - listitem [ref=e48]:
+          - link "󰮜 Annuaire" [ref=e49] [cursor=pointer]:
+            - /url: /clients/list
+            - generic [ref=e50]: 󰮜
+            - generic [ref=e51]: Annuaire
+        - listitem [ref=e52]:
+          - link "󱃊 Référents" [ref=e53] [cursor=pointer]:
+            - /url: /referents/list
+            - generic [ref=e54]: 󱃊
+            - generic [ref=e55]: Référents
+        - listitem [ref=e56]:
+          - link "󱢛 Techniciens" [ref=e57] [cursor=pointer]:
+            - /url: /techniciens/list
+            - generic [ref=e58]: 󱢛
+            - generic [ref=e59]: Techniciens
+        - listitem [ref=e60]:
+          - link "󰭘 Équipe Techniciens" [ref=e61] [cursor=pointer]:
+            - /url: /techniciens/equipe
+            - generic [ref=e62]: 󰭘
+            - generic [ref=e63]: Équipe Techniciens
+        - listitem [ref=e64]: Actions
+        - listitem [ref=e65]:
+          - link "󰻭 Nouvelle Affaire" [ref=e66] [cursor=pointer]:
+            - /url: /affaires/edit
+            - generic [ref=e67]: 󰻭
+            - generic [ref=e68]: Nouvelle Affaire
+        - listitem [ref=e69]:
+          - link "󰸘 Planning" [ref=e70] [cursor=pointer]:
+            - /url: /interventions/planning
+            - generic [ref=e71]: 󰸘
+            - generic [ref=e72]: Planning
+    - generic [ref=e73]:
+      - generic [ref=e77]:
+        - heading "Tableau de bord" [level=3] [ref=e79]
+        - generic [ref=e80]:
+          - generic [ref=e82]: 󰄨
+          - generic [ref=e83]: Aucune donnée pour le moment
+          - generic [ref=e84]: Les indicateurs apparaîtront ici dès que des interventions seront créées.
+      - contentinfo [ref=e86]:
+        - generic [ref=e87]:
+          - generic [ref=e88]:
+            - text: © 2025
+            - link "Zineb SENNAN" [ref=e89] [cursor=pointer]:
+              - /url: "#"
+            - text: . Tous droits réservés.
+          - generic [ref=e90]: AstroTech 2.0
